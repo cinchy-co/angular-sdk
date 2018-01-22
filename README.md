@@ -60,9 +60,9 @@ export const MyCinchyAppConfig: CinchyConfig = {
   // The url of your Cinchy IdentityServer
   authority: 'http://qa1-sso.cinchy.co/CinchySSO/identity',
   // The redirect url after logging in
-  redirectUri: 'http://localhost:3000/',
+  redirectUri: 'http://localhost:4200/',
   // The id of your applet
-  clientId: 'alvin-rest-sample'
+  clientId: 'your-applet-id'
 };
 
 @Component({
