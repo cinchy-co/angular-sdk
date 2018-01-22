@@ -13,28 +13,21 @@ $ npm install cinchy-angular --save
 From your Angular `AppModule`:
 
 ```typescript
-import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
-
-import { AppComponent } from './app.component';
-
+...
 // Import Cinchy's module and service
 import { CinchyModule, CinchyService } from 'cinchy-angular';
 
 @NgModule({
-  declarations: [
-    AppComponent
-  ],
+  ...
   imports: [
-    BrowserModule,
-
+    ...
     // Import CinchyModule in imports
     CinchyModule.forRoot()
   ],
 
   // Add CinchyService as one of the providers
   providers: [CinchyService],
-  bootstrap: [AppComponent]
+  ...
 })
 export class AppModule { }
 ```
@@ -154,13 +147,13 @@ this._cinchyService.executeJsonQuery(query, params, jsonQueryResult => {
 * [CinchyService](#cinchy_service)
    * [.login()](#login) ⇒ <code>Promise</code>
    * [.executeJsonQuery(query, params, successCallback?, errorCallback?, callbackState?, continueOnFailure?, completionMonitor?)](#execute_json_query) 
-   * [.executeJsonSavedQuery()](#execute_json_saved_query)
-   * [.openConnection()](#open_connection)
-   * [.closeConnection()](#close_connection)
-   * [.beginTransaction()](#begin_transaction)
-   * [.commitTransaction()](#commit_transaction)
-   * [.rollbackTransaction()](#rollback_transaction)
-   * [.executeMultipleJsonSavedQueries()](#execute_multiple_json_saved_queries)
+   * [.executeJsonSavedQuery(domain, query, params, successCallback?, errorCallback?, callbackState?, continueOnFailure?, completionMonitor?)](#execute_json_saved_query)
+   * [.openConnection(successCallback?, errorCallback?, callbackState?)](#open_connection)
+   * [.closeConnection(connectionId, successCallback?, errorCallback?, callbackState?)](#close_connection)
+   * [.beginTransaction(connectionId, successCallback?, errorCallback?, callbackState?)](#begin_transaction)
+   * [.commitTransaction(connectionId, transactionId, successCallback?, errorCallback?, callbackState?)](#commit_transaction)
+   * [.rollbackTransaction(connectionId, transactionId, successCallback?, errorCallback?, callbackState?)](#rollback_transaction)
+   * [.executeMultipleJsonSavedQueries(savedQueryParams, callback?, callbackState?)](#execute_multiple_json_saved_queries)
 
 
 
