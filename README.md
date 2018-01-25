@@ -53,9 +53,9 @@ export const MyCinchyAppConfig: CinchyConfig = {
   // The url of your Cinchy IdentityServer
   authority: 'http://qa1-sso.cinchy.co/CinchySSO/identity',
   // The redirect url after logging in
-  redirectUri: 'http://localhost:4200/',
+  redirectUri: 'http://my-app-url/',
   // The id of your applet
-  clientId: 'your-applet-id'
+  clientId: 'my-applet-id'
 };
 
 @Component({
@@ -72,18 +72,34 @@ export class AppComponent {
   // Inject CinchyService into this component
   constructor(private _cinchyService: CinchyService) {
 
-    // Present login screen
-    this._cinchyService.login().then( success => {
-      if (success)
-        console.log('Logged in success!');
+    // Redirect to login screen
+    this._cinchyService.login().then( response => {
+        console.log('Login Success!');
+    }).catch( error => {
+        console.log('Login Failed');  
     });
   }
+```
+
+## Allowing App for Embedment
+Apps can be embedded and launched within the Cinchy platfrom.
+
+Before your app can be embedded, you must use the iframe-resizer library within your Angular App. This allows your app to be properly resized within an iFrame when integrated into Cinchy's platform.
+
+The iframe-resizer package is already included in the cinchy-angular npm package.
+Simply the iframe-resizer .js files into your project's scripts within `.angular-cli.json`:
+
+```typescript
+"scripts": [
+    "../node_modules/cinchy-angular/node_modules/iframe-resizer/js/iframeResizer.min.js",
+    "../node_modules/cinchy-angular/node_modules/iframe-resizer/js/iframeResizer.contentWindow.min.js"
+],
 ```
 
 ## Example Usage
 Once your Angular app is properly set-up and logged into Cinchy, you may start executing queries.
 
-Executing a saved query:
+Executing a saved query and parsing returned data:
 
 ```typescript
 const data = [];
@@ -93,182 +109,187 @@ const query = 'My Query Name';
 // Values such as connectionid, transactionid, and parameterized variables in the query
 const params = {'@city': 'Toronto'};
 
-this._cinchyService.executeJsonSavedQuery(domain, query, params, jsonQueryResult => {
-    // Parses the result data
-    while (jsonQueryResult.moveToNextRow()) {
-      const this_row = {};
-      for (const col of jsonQueryResult.getColNames()){
-        this_row[col] = jsonQueryResult.getCellValue(col);
-      }
-      data.push(this_row);
-    }
+this._cinchyService.executeJsonSavedQuery(domain, query, params).subscribe(
+    response => {
+        let jsonQueryResult = response.jsonQueryResult;
+        // Parses the result data
+        while (jsonQueryResult.moveToNextRow()) {
+            const this_row = {};
+            for (const col of jsonQueryResult.getColNames()){
+                this_row[col] = jsonQueryResult.getCellValue(col);
+            }
+            data.push(this_row);
+        }
 
-    // Printing the result after parsing
-    console.log(data);
-  }
-);
+        // Printing the result after parsing
+        console.log(data);
+    },
+    error => {
+        console.log(error);
+    });
 ```
 
-Executing a custom query:
+Executing a custom query and parsing returned data:
 
 ```typescript
-const data = [];
-
 // CQL Query
 const query = 'SELECT * FROM [DOMAIN].[TABLE NAME]';
 
 // Values such as connectionid, transactionid, and parameterized variables in the query
 const params = null;
 
-this._cinchyService.executeJsonQuery(query, params, jsonQueryResult => {
-    // Parses the result data
-    while (jsonQueryResult.moveToNextRow()) {
-      const this_row = {};
-      for (const col of jsonQueryResult.getColNames()){
-        this_row[col] = jsonQueryResult.getCellValue(col);
-      }
-      data.push(this_row);
-    }
+const data = [];
+this._cinchyService.executeJsonQuery(query, params).subscribe(
+    response => {
+        let jsonQueryResult = response.jsonQueryResult;
+        // Parses the result data
+        while (jsonQueryResult.moveToNextRow()) {
+            const this_row = {};
+            for (const col of jsonQueryResult.getColNames()){
+                this_row[col] = jsonQueryResult.getCellValue(col);
+            }
+            data.push(this_row);
+        }
 
-    // Printing the result after parsing
-    console.log(data);
-  }
-);
+        // Printing the result after parsing
+        console.log(data);
+    },
+    error => {
+        console.log(error);
+    });
 ```
 
 
 ## API
 
-## CinchyService
-<a name="cinchy_service"></a>
-
-**Kind**: global class  
-
 * [CinchyService](#cinchy_service)
    * [.login()](#login) ⇒ <code>Promise</code>
-   * [.executeJsonQuery(query, params, successCallback?, errorCallback?, callbackState?, continueOnFailure?, completionMonitor?)](#execute_json_query) 
-   * [.executeJsonSavedQuery(domain, query, params, successCallback?, errorCallback?, callbackState?, continueOnFailure?, completionMonitor?)](#execute_json_saved_query)
-   * [.openConnection(successCallback?, errorCallback?, callbackState?)](#open_connection)
-   * [.closeConnection(connectionId, successCallback?, errorCallback?, callbackState?)](#close_connection)
-   * [.beginTransaction(connectionId, successCallback?, errorCallback?, callbackState?)](#begin_transaction)
-   * [.commitTransaction(connectionId, transactionId, successCallback?, errorCallback?, callbackState?)](#commit_transaction)
-   * [.rollbackTransaction(connectionId, transactionId, successCallback?, errorCallback?, callbackState?)](#rollback_transaction)
-   * [.executeMultipleJsonSavedQueries(savedQueryParams, callback?, callbackState?)](#execute_multiple_json_saved_queries)
+   * [.executeJsonQuery(query, params, callbackState?, continueOnFailure?, completionMonitor?)](#execute_json_query) ⇒ <code>Observable</code>
+   * [.executeJsonSavedQuery(domain, query, params, callbackState?, continueOnFailure?, completionMonitor?)](#execute_json_saved_query) ⇒ <code>Observable</code>
+   * [.openConnection(callbackState?)](#open_connection) ⇒ <code>Observable</code>
+   * [.closeConnection(connectionId, callbackState?)](#close_connection) ⇒ <code>Observable</code>
+   * [.beginTransaction(connectionId, callbackState?)](#begin_transaction) ⇒ <code>Observablee</code>
+   * [.commitTransaction(connectionId, transactionId, callbackState?)](#commit_transaction) ⇒ <code>Observable</code>
+   * [.rollbackTransaction(connectionId, transactionId, callbackState?)](#rollback_transaction) ⇒ <code>Observable</code>
+   * [.executeMultipleJsonSavedQueries(savedQueryParams, callback?, callbackState?)](#execute_multiple_json_saved_queries) ⇒ <code>Observable</code>
 
+<a name="cinchy_service"></a>
 
+## CinchyService
 
 <a name="login"></a>
 
-### .login()
+### .login() => `Promise`
 Redirects the page to Cinchy's login page.
 
-Returns a boolean for a promise to indicate whether the login was successful or not.
+The login function returns a promise indicating when the user is logged in.
 
 ```typescript
-this._cinchyService.login().then( success => {
-  if (success)
-    console.log('Logged in success!');
+this._cinchyService.login().then( response => {
+    console.log('Login Success!');
+}).catch( error => {
+    console.log('Login Failed');  
 });
 ```
 
 <a name="execute_json_query"></a>
 
-### .executeJsonQuery(query, params, successCallback?, errorCallback?, callbackState?, continueOnFailure?, completionMonitor?)
+### .executeJsonQuery(query, params, callbackState?, continueOnFailure?, completionMonitor?) => `Observable`
 Performs a custom CQL query.
+
+#### returns `Observable<{jsonQueryResult: CinchyService.JsonQueryResult, callbackState}>`
 
 | Param | Type | Description |
 | --- | --- | --- |
 | query | <code>string</code> | A CQL query as a string |
 | params | <code>string</code> | An object with variables associated or needed with the query (connectionid, transactionid, parameterized values) |
-| successCallback? | <code>callback</code> | Callback function that returns (jsonQueryResult, callbackState) on success of query |
-| errorCallback? | <code>callback</code> | Callback function that returns (cinchyEx, callbackState) on failure/error of query |
 | callbackState? | <code>any</code> | Used for inserting an object of any type to be returned by the function's callbacks |
 | continueOnFailure? | <code>boolean</code> | For executeMultipleSavedQueries(). Ignore this param. |
 | completionMonitor? | <code>object</code> | MultiQueryCompletionMonitor object for executeMultipleSavedQueries(). Ignore this param. |
 
 <a name="execute_json_saved_query"></a>
 
-### .executeJsonSavedQuery(domain, query, params, successCallback?, errorCallback?, callbackState?, continueOnFailure?, completionMonitor?)
+### .executeJsonSavedQuery(domain, query, params, callbackState?, continueOnFailure?, completionMonitor?) => `Observable`
 Performs a saved query.
+
+#### returns `Observable<{jsonQueryResult: CinchyService.JsonQueryResult, callbackState}>`
 
 | Param | Type | Description |
 | --- | --- | --- |
 | domain | <code>string</code> | The domain in which the saved query is in. |
 | query | <code>string</code> | The query's name in the domain. |
 | params | <code>string</code> | An object with variables associated or needed with the query (connectionid, transactionid, parameterized values) |
-| successCallback? | <code>callback</code> | Callback function that returns (jsonQueryResult, callbackState) on success of query |
-| errorCallback? | <code>callback</code> | Callback function that returns (cinchyEx, callbackState) on failure/error of query |
 | callbackState? | <code>any</code> | Used for inserting an object of any type to be returned by the function's callbacks |
 | continueOnFailure? | <code>boolean</code> | For executeMultipleSavedQueries(). Ignore this param. |
 | completionMonitor? | <code>object</code> | MultiQueryCompletionMonitor object for executeMultipleSavedQueries(). Ignore this param. |
 
 <a name="open_connection"></a>
 
-### .openConnection(successCallback?, errorCallback?, callbackState?)
+### .openConnection(callbackState?) => `Observable`
 Opens a connection with Cinchy for data transactions.
+
+#### returns `Observable<{connectionId: string, callbackState}>`
 
 | Param | Type | Description |
 | --- | --- | --- |
-| successCallback? | <code>callback</code> | Callback function that returns (connectionId, callbackState) on success. |
-| errorCallback? | <code>callback</code> | Callback function that returns (cinchyEx, callbackState) on failure/error. |
 | callbackState? | <code>any</code> | Used for inserting an object of any type to be returned by the function's callbacks |
 
 <a name="close_connection"></a>
 
-### .closeConnection(connectionId, successCallback?, errorCallback?, callbackState?)
+### .closeConnection(connectionId, callbackState?) => `Observable`
 Closes a connection with Cinchy for data transactions.
+
+#### returns `Observable<{connectionId: string, callbackState}>`
 
 | Param | Type | Description |
 | --- | --- | --- |
 | connectionId | <code>string</code> | The connectionid of the connection you want to close. |
-| successCallback? | <code>callback</code> | Callback function that returns (connectionId, callbackState) on success. |
-| errorCallback? | <code>callback</code> | Callback function that returns (cinchyEx, callbackState) on failure/error. |
 | callbackState? | <code>any</code> | Used for inserting an object of any type to be returned by the function's callbacks |
 
 <a name="begin_transaction"></a>
 
-### .beginTransaction(connectionId, successCallback?, errorCallback?, callbackState?)
+### .beginTransaction(connectionId, callbackState?) => `Observable`
 Starts a transaction.
 
-Returns a transactionid in successCallback.
+#### returns `Observable<{transactionId: string, callbackState}>`
 
 | Param | Type | Description |
 | --- | --- | --- |
 | connectionId | <code>string</code> | The connectionid of the connection you want to start a transaction on. |
-| successCallback? | <code>callback</code> | Callback function that returns (transactionId, callbackState) on success. |
-| errorCallback? | <code>callback</code> | Callback function that returns (cinchyEx, callbackState) on failure/error. |
 | callbackState? | <code>any</code> | Used for inserting an object of any type to be returned by the function's callbacks |
 
 <a name="commit_transaction"></a>
 
-### .commitTransaction(connectionId, transactionId, successCallback?, errorCallback?, callbackState?)
+### .commitTransaction(connectionId, transactionId, callbackState?) => `Observable`
 Commits a transaction.
+
+#### returns `Observable<{connectionId: string, transactionId: string, callbackState}>`
 
 | Param | Type | Description |
 | --- | --- | --- |
 | connectionId | <code>string</code> | The connectionid of the connection you want to commit the transaction on. |
 | transactionId | <code>string</code> | The transactionid of the transaction you want to commit. |
-| successCallback? | <code>callback</code> | Callback function that returns (connectionId, transactionId, callbackState) on success. |
-| errorCallback? | <code>callback</code> | Callback function that returns (cinchyEx, callbackState) on failure/error. |
 | callbackState? | <code>any</code> | Used for inserting an object of any type to be returned by the function's callbacks |
 
 <a name="rollback_transaction"></a>
 
-### .rollbackTransaction(connectionId, transactionId, successCallback?, errorCallback?, callbackState?)
+### .rollbackTransaction(connectionId, transactionId, callbackState?) => `Observable`
 Rollback a transaction.
+
+#### returns `Observable<{connectionId: string, transactionId: string, callbackState}>`
 
 | Param | Type | Description |
 | --- | --- | --- |
 | connectionId | <code>string</code> | The connectionid of the connection you want to rollback the transaction on. |
 | transactionId | <code>string</code> | The transactionid of the transaction you want to rollback. |
-| successCallback? | <code>callback</code> | Callback function that returns (connectionId, transactionId, callbackState) on success. |
-| errorCallback? | <code>callback</code> | Callback function that returns (cinchyEx, callbackState) on failure/error. |
 | callbackState? | <code>any</code> | Used for inserting an object of any type to be returned by the function's callbacks |
 
 <a name="execute_multiple_json_saved_queries"></a>
 
-### .executeMultipleJsonSavedQueries(savedQueryParams, callback?, callbackState?)
+### .executeMultipleJsonSavedQueries(savedQueryParams, callback?, callbackState?) => `Observable`
 Executes multiple saved queries.
+
+#### returns `Observable<{jsonQueryResult: CinchyService.JsonQueryResult, callbackState}>`
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -276,8 +297,8 @@ Executes multiple saved queries.
 | callback? | <code>callback</code> | |
 | callbackState? | <code>any</code> | Used for inserting an object of any type to be returned by the function's callbacks |
 
-## More Documentation
-
-See (link) TBD
+## More Documentaion
+See [here](http://support.cinchy.co/) for more information.
 
 ## License
+This project is license under the terms of the [GNU General Public License v3.0](https://github.com/cinchy-co/angular-sdk/blob/master/LICENSE)
