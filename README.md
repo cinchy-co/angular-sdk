@@ -168,7 +168,7 @@ this._cinchyService.executeJsonQuery(query, params).subscribe(
    * [.executeJsonSavedQuery(domain, query, params, callbackState?, continueOnFailure?, completionMonitor?)](#execute_json_saved_query) ⇒ <code>Observable</code>
    * [.openConnection(callbackState?)](#open_connection) ⇒ <code>Observable</code>
    * [.closeConnection(connectionId, callbackState?)](#close_connection) ⇒ <code>Observable</code>
-   * [.beginTransaction(connectionId, callbackState?)](#begin_transaction) ⇒ <code>Observablee</code>
+   * [.beginTransaction(connectionId, callbackState?)](#begin_transaction) ⇒ <code>Observable</code>
    * [.commitTransaction(connectionId, transactionId, callbackState?)](#commit_transaction) ⇒ <code>Observable</code>
    * [.rollbackTransaction(connectionId, transactionId, callbackState?)](#rollback_transaction) ⇒ <code>Observable</code>
    * [.executeMultipleJsonSavedQueries(savedQueryParams, callback?, callbackState?)](#execute_multiple_json_saved_queries) ⇒ <code>Observable</code>
