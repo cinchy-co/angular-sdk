@@ -172,6 +172,10 @@ this._cinchyService.executeJsonQuery(query, params).subscribe(
    * [.commitTransaction(connectionId, transactionId, callbackState?)](#commit_transaction) ⇒ <code>Observable</code>
    * [.rollbackTransaction(connectionId, transactionId, callbackState?)](#rollback_transaction) ⇒ <code>Observable</code>
    * [.executeMultipleJsonSavedQueries(savedQueryParams, callback?, callbackState?)](#execute_multiple_json_saved_queries) ⇒ <code>Observable</code>
+   * [.getGroupsCurrentUserBelongsTo()](#get_groups_current_user_belongs_to) ⇒ <code>Observable</code>
+   * [.getTableEntitlementsById(tableId)](#get_table_entitlements_by_id) ⇒ <code>Observable</code>
+   * [.getTableEntitlementsByGuid(tableGuid)](#get_table_entitlements_by_guid) ⇒ <code>Observable</code>
+   * [.getTableEntitlementsByName(domainName, tableName)](#get_table_entitlements_by_name) ⇒ <code>Observable</code>
 
 <a name="cinchy_service"></a>
 
@@ -296,6 +300,47 @@ Executes multiple saved queries.
 | savedQueryParams | <code>[object]</code> | An object array. Each object containing variables (domain, query, params, successCallback?, errorCallback?, callbackState?, continueOnFailure?, completionMonitor?) |
 | callback? | <code>callback</code> | |
 | callbackState? | <code>any</code> | Used for inserting an object of any type to be returned by the function's callbacks |
+
+<a name="get_groups_current_user_belongs_to"></a>
+
+### .getGroupsCurrentUserBelongsTo() => `Observable`
+Retrieves the access control groups the current user belongs to.
+
+#### returns `Observable<any>`
+
+<a name="get_table_entitlements_by_id"></a>
+
+### .getTableEntitlementsById(tableId) => `Observable`
+Retrieves a table's entitlements by its id.
+
+#### returns `Observable<any>`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| tableId | <code>string</code> | The Cinchy Id of the table you want the entitlements of. Can be found when exporting a table model or simply when you view a table in the Cinchy platform, you can see its Id in the url. |
+
+<a name="get_table_entitlements_by_guid"></a>
+
+### .getTableEntitlementsByGuid(tableGuid) => `Observable`
+Retrieves a table's entitlements by its GUID.
+
+#### returns `Observable<any>`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| tableGuid | <code>string</code> | The guid of the table you want the entitlements of. Can be found when exporting a table model. |
+
+<a name="get_table_entitlements_by_name"></a>
+
+### .getTableEntitlementsByName(tableDomain, tableName) => `Observable`
+Retrieves a table's entitlements by its domain and name.
+
+#### returns `Observable<any>`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| tableDomain | <code>string</code> | The name of the domain in which the table is in. |
+| tableName | <code>string</code> | The name of the table. |
 
 ## More Documentaion
 See [here](http://support.cinchy.co/) for more information.
