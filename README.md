@@ -1,11 +1,11 @@
-# cinchy-angular
+# @cinchy-co/angular-sdk
 
 ## Installation
 
 To install this library, go to your angular project directory and use:
 
 ```bash
-$ npm install cinchy-angular --save
+$ npm install @cinchy-co/angular-sdk --save
 ```
 
 ## Importing the Cinchy Library

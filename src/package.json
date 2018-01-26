@@ -1,0 +1,32 @@
+{
+  "name": "@cinchy-co/angular-sdk",
+  "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cinchy-co/angular-sdk"
+  },
+  "author": {
+    "name": "Cinchy",
+    "email": "opensource@cinchy.co"
+  },
+  "keywords": [
+    "angular", "cinchy", "api", "data network"
+  ],
+  "license": "GPL-3.0-only",
+  "bugs": {
+    "url": "https://github.com/cinchy-co/angular-sdk/issues"
+  },
+  "main": "cinchy-angular.umd.js",
+  "module": "cinchy-angular.js",
+  "jsnext:main": "cinchy-angular.js",
+  "typings": "cinchy-angular.d.ts",
+  "peerDependencies": {
+    "@angular/core": "^4.0.0",
+    "rxjs": "^5.1.0",
+    "zone.js": "^0.8.4"
+  },
+  "dependencies": {
+    "angular-oauth2-oidc": "^3.1.4",
+    "iframe-resizer": "^3.5.16"
+  }
+}
