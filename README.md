@@ -15,7 +15,7 @@ From your Angular `AppModule`:
 ```typescript
 ...
 // Import Cinchy's module and service
-import { CinchyModule, CinchyService } from 'cinchy-angular';
+import { CinchyModule } from 'cinchy-angular';
 
 @NgModule({
   ...
@@ -25,8 +25,8 @@ import { CinchyModule, CinchyService } from 'cinchy-angular';
     CinchyModule.forRoot()
   ],
 
-  // Add CinchyService as one of the providers
-  providers: [CinchyService],
+  // Add CinchyModule as one of the providers
+  providers: [CinchyModule],
   ...
 })
 export class AppModule { }
