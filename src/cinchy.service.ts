@@ -9,6 +9,8 @@ import { PACKAGE_ROOT_URL } from '@angular/core/src/application_tokens';
 import { OAuthService, JwksValidationHandler, AuthConfig, OAuthStorage, OAuthResourceServerErrorHandler, OAuthModuleConfig } from 'angular-oauth2-oidc';
 import { CinchyConfig } from './cinchy.config';
 import { CinchyGlobalConfig } from './cinchy.global.config';
+import { forkJoin } from 'rxjs/observable/forkJoin';
+import 'rxjs/add/observable/from';
 
 @Injectable()
 export class CinchyService {
@@ -36,7 +38,7 @@ export class CinchyService {
         return this._oAuthService.loadDiscoveryDocumentAndLogin();
     }
 
-    private _executeJsonQuery(apiUrl: string, params: object, errorMsg: string, callbackState, continueOnFailure, completionMonitor): Observable<{jsonQueryResult: CinchyService.JsonQueryResult, callbackState}> {
+    private _executeJsonQuery(apiUrl: string, params: object, errorMsg: string, callbackState): Observable<{jsonQueryResult: CinchyService.JsonQueryResult, callbackState}> {
         let form_data = null;
         if (isNonNullObject(params)) {
             form_data = this.getFormUrlEncodedData(params);
@@ -47,8 +49,6 @@ export class CinchyService {
             { headers: new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded') }
             ).map( data => {
                 let jsonQueryResult = new CinchyService.JsonQueryResult(data);
-                if (isNonNullObject(completionMonitor) && isFunction(completionMonitor.incrementCompleted))
-                    completionMonitor.incrementCompleted();
                 return {jsonQueryResult: jsonQueryResult, callbackState: callbackState};
             }).catch ( error => {
                 let cinchyEx = new CinchyService.CinchyException(errorMsg, {
@@ -56,16 +56,16 @@ export class CinchyService {
                     statusText: error.statusText,
                     response: error.responseJSON
                 });
-                if (isBoolean(continueOnFailure) && continueOnFailure) {
-                    cinchyEx.logError();
-                    if (isNonNullObject(completionMonitor) && isFunction(completionMonitor.incrementCompleted))
-                        completionMonitor.incrementCompleted();
-                }
+                // if (isBoolean(continueOnFailure) && continueOnFailure) {
+                //     cinchyEx.logError();
+                //     if (isNonNullObject(completionMonitor) && isFunction(completionMonitor.incrementCompleted))
+                //         completionMonitor.incrementCompleted();
+                // }
                 throw Observable.throw({cinchyException: cinchyEx, callbackState: callbackState});
             });
     }
 
-    executeJsonQuery(query: string, params: object, callbackState?, continueOnFailure?, completionMonitor?): Observable<{jsonQueryResult: CinchyService.JsonQueryResult, callbackState}> {
+    executeJsonQuery(query: string, params: object, callbackState?): Observable<{jsonQueryResult: CinchyService.JsonQueryResult, callbackState}> {
         if (!isNonNullOrWhitespaceString(query))
             throw new CinchyService.CinchyException('Query cannot be empty', query);
         let formattedParams = {};
@@ -94,14 +94,14 @@ export class CinchyService {
         let apiUrl = this.cinchyRootUrl + '/API/ExecuteCQL';
         let errorMsg = 'Failed to execute query ' + query;
 
-        return <Observable <{jsonQueryResult: CinchyService.JsonQueryResult, callbackState}>> this._executeJsonQuery(apiUrl, formattedParams, errorMsg, callbackState, continueOnFailure, completionMonitor)
+        return <Observable <{jsonQueryResult: CinchyService.JsonQueryResult, callbackState}>> this._executeJsonQuery(apiUrl, formattedParams, errorMsg, callbackState)
             .map( response => response)
             .catch( error => {
                 throw Observable.throw(error);
         });
     }
 
-    executeJsonSavedQuery(domain: string, query: string, params: object, callbackState?, continueOnFailure?, completionMonitor?): Observable<{jsonQueryResult: CinchyService.JsonQueryResult, callbackState}> {
+    executeJsonSavedQuery(domain: string, query: string, params: object, callbackState?): Observable<{jsonQueryResult: CinchyService.JsonQueryResult, callbackState}> {
         if (!isNonNullOrWhitespaceString(domain))
             throw new CinchyService.CinchyException('Domain must be a valid string', domain);
         if (!isNonNullOrWhitespaceString(query))
@@ -109,7 +109,7 @@ export class CinchyService {
         let apiUrl = this.cinchyRootUrl + '/API/' + domain + '/' + query;
         let errorMsg = 'Failed to execute json saved query ' + query + ' within domain ' + domain;
 
-        return <Observable <{jsonQueryResult: CinchyService.JsonQueryResult, callbackState}>> this._executeJsonQuery(apiUrl, params, errorMsg, callbackState, continueOnFailure, completionMonitor)
+        return <Observable <{jsonQueryResult: CinchyService.JsonQueryResult, callbackState}>> this._executeJsonQuery(apiUrl, params, errorMsg, callbackState)
             .map( response => response)
             .catch(error => {
                 throw Observable.throw(error);
@@ -227,32 +227,30 @@ export class CinchyService {
         });
     }
 
-    executeMultipleJsonSavedQueries(savedQueryParams: [any], callback?, callbackState?): Observable<{jsonQueryResult: CinchyService.JsonQueryResult, callbackState}> {
+    executeMultipleJsonSavedQueries(savedQueryParams: {domain: string, query: string, params, callbackState}[], callbackState?): Observable<{jsonQueryResult: CinchyService.JsonQueryResult, callbackState}[]> {
         if (!isNonZeroLengthArray(savedQueryParams))
             throw new CinchyService.CinchyException('Failed to execute json saved queries, savedQueryParams must be specified as an array of objects, with each object containing the parameters required to invoke a single call to the executeJsonSavedQuery method', savedQueryParams);
-        let multiQueryCompletionMonitor = new CinchyService.MultiQueryCompletionMonitor(savedQueryParams.length, callback, callbackState);
+
+        let allObservables = [];
         for (let i = 0; i < savedQueryParams.length; i++) {
-            if (!isNonNullObject(savedQueryParams[i]))
-                throw new CinchyService.CinchyException('Failed to execute json saved queries, savedQueryParams[' + i + '] must be an object containing the parameters required to invoke a single call to the executeJsonSavedQuery method', savedQueryParams);
-            return <Observable<{jsonQueryResult: CinchyService.JsonQueryResult, callbackState}>> this.executeJsonSavedQuery(savedQueryParams[i].domain, savedQueryParams[i].query, savedQueryParams[i].params, savedQueryParams[i].callbackState, savedQueryParams[i].continueOnFailure, multiQueryCompletionMonitor)
-            .map( response => {
-                return(response);
-            }).catch ( error => {
-                throw Observable.throw(error);
-            });
+            allObservables.push(<Observable<{jsonQueryResult: CinchyService.JsonQueryResult, callbackState}>> this.executeJsonSavedQuery(savedQueryParams[i].domain, savedQueryParams[i].query, savedQueryParams[i].params, savedQueryParams[i].callbackState));
+
+            if (i === savedQueryParams.length - 1) {
+                return <Observable<{jsonQueryResult: CinchyService.JsonQueryResult, callbackState}[]>> forkJoin(allObservables);
+            }
         }
     }
 
     getGroupsCurrentUserBelongsTo(): Observable<any> {
         return this._httpClient.get(this.cinchyRootUrl + '/Account/GetGroupsCurrentUserBelongsTo',
-            { headers: new HttpHeaders().set('Content-Type', 'application/json; charset=utf-8') })
+            { headers: new HttpHeaders().set('Content-Type', 'application/json; charset=utf-8'),     })
             .map(data => {
                 return data;
             })
             .catch(error => {
                 throw Observable.throw(error);
             });
-    };
+    }
 
     getTableEntitlementsById(tableId): Observable<any> {
         return this._httpClient.post(this.cinchyRootUrl + '/Account/GetTableEntitlementsById',
@@ -264,7 +262,7 @@ export class CinchyService {
             .catch(error => {
                 throw Observable.throw(error);
             });
-    };
+    }
 
     getTableEntitlementsByGuid(tableGuid): Observable<any> {
         return this._httpClient.post(this.cinchyRootUrl + '/Account/GetTableEntitlementsByGuid',
@@ -561,33 +559,6 @@ export namespace CinchyService {
                 }
             } else {
                 throw new CinchyException('Failed to retrieve column value. Parameter col must either be a valid column name belonging to the result set or a column index', { colParameterValue: col });
-            }
-        }
-    }
-
-    export class MultiQueryCompletionMonitor {
-
-        _completedCount = 0;
-        _targetCount;
-        _callback;
-        _callbackState;
-
-        constructor(_targetCount, _callback, _callbackState) {
-            this._targetCount = _targetCount;
-            this._callback = _callback;
-            this._callbackState = _callbackState;
-
-            if (!isInteger(_targetCount) || _targetCount < 1)
-                throw new CinchyException('Failed to initialize multi query completion monitor because the target count is not a valid integer', this._targetCount);
-        }
-
-        incrementCompleted() {
-            this._completedCount++;
-            if (this._completedCount === this._targetCount) {
-                if (isFunction(this._callback))
-                    this._callback(this._callbackState);
-            } else if (this._completedCount > this._targetCount) {
-                throw new CinchyException('Failed to increment multi query completion monitor because the target count has been exceeded', this._targetCount);
             }
         }
     }
