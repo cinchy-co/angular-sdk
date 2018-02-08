@@ -15,7 +15,7 @@ From your Angular `AppModule`:
 ```typescript
 ...
 // Import Cinchy's module and service
-import { CinchyModule } from 'cinchy-angular';
+import { CinchyModule } from '@cinchy-co/angular-sdk';
 
 @NgModule({
   ...
@@ -43,7 +43,7 @@ In this example, we do it in AppComponent:
 ```typescript
 ...
 // Import CinchyService to make API calls and CinchyConfig to configure the service
-import { CinchyService, CinchyConfig } from 'cinchy-angular';
+import { CinchyService, CinchyConfig } from '@cinchy-co/angular-sdk';
 ...
 
 // Create a config (as a class of CinchyConfig) to be loaded into CinchyService
@@ -86,13 +86,13 @@ Apps can be embedded and launched within the Cinchy platfrom.
 
 Before your app can be embedded, you must use the iframe-resizer library within your Angular App. This allows your app to be properly resized within an iFrame when integrated into Cinchy's platform.
 
-The iframe-resizer package is already included in the cinchy-angular npm package.
+The iframe-resizer package is already included in the Cinchy npm package so it installed it within your node_modules.
 Simply the iframe-resizer .js files into your project's scripts within `.angular-cli.json`:
 
 ```typescript
 "scripts": [
-    "../node_modules/cinchy-angular/node_modules/iframe-resizer/js/iframeResizer.min.js",
-    "../node_modules/cinchy-angular/node_modules/iframe-resizer/js/iframeResizer.contentWindow.min.js"
+    "../node_modules/iframe-resizer/js/iframeResizer.min.js",
+    "../node_modules/iframe-resizer/js/iframeResizer.contentWindow.min.js"
 ],
 ```
 
