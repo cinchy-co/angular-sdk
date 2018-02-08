@@ -164,14 +164,14 @@ this._cinchyService.executeJsonQuery(query, params).subscribe(
 
 * [CinchyService](#cinchy_service)
    * [.login()](#login) ⇒ <code>Promise</code>
-   * [.executeJsonQuery(query, params, callbackState?, continueOnFailure?, completionMonitor?)](#execute_json_query) ⇒ <code>Observable</code>
-   * [.executeJsonSavedQuery(domain, query, params, callbackState?, continueOnFailure?, completionMonitor?)](#execute_json_saved_query) ⇒ <code>Observable</code>
+   * [.executeJsonQuery(query, params, callbackState?)](#execute_json_query) ⇒ <code>Observable</code>
+   * [.executeJsonSavedQuery(domain, query, params, callbackState?)](#execute_json_saved_query) ⇒ <code>Observable</code>
    * [.openConnection(callbackState?)](#open_connection) ⇒ <code>Observable</code>
    * [.closeConnection(connectionId, callbackState?)](#close_connection) ⇒ <code>Observable</code>
    * [.beginTransaction(connectionId, callbackState?)](#begin_transaction) ⇒ <code>Observable</code>
    * [.commitTransaction(connectionId, transactionId, callbackState?)](#commit_transaction) ⇒ <code>Observable</code>
    * [.rollbackTransaction(connectionId, transactionId, callbackState?)](#rollback_transaction) ⇒ <code>Observable</code>
-   * [.executeMultipleJsonSavedQueries(savedQueryParams, callback?, callbackState?)](#execute_multiple_json_saved_queries) ⇒ <code>Observable</code>
+   * [.executeMultipleJsonSavedQueries(savedQueryParams, callbackState?)](#execute_multiple_json_saved_queries) ⇒ <code>Observable</code>
    * [.getGroupsCurrentUserBelongsTo()](#get_groups_current_user_belongs_to) ⇒ <code>Observable</code>
    * [.getTableEntitlementsById(tableId)](#get_table_entitlements_by_id) ⇒ <code>Observable</code>
    * [.getTableEntitlementsByGuid(tableGuid)](#get_table_entitlements_by_guid) ⇒ <code>Observable</code>
@@ -198,7 +198,7 @@ this._cinchyService.login().then( response => {
 
 <a name="execute_json_query"></a>
 
-### .executeJsonQuery(query, params, callbackState?, continueOnFailure?, completionMonitor?) => `Observable`
+### .executeJsonQuery(query, params, callbackState?) => `Observable`
 Performs a custom CQL query.
 
 #### returns `Observable<{jsonQueryResult: CinchyService.JsonQueryResult, callbackState}>`
@@ -208,12 +208,10 @@ Performs a custom CQL query.
 | query | <code>string</code> | A CQL query as a string |
 | params | <code>string</code> | An object with variables associated or needed with the query (connectionid, transactionid, parameterized values) |
 | callbackState? | <code>any</code> | Used for inserting an object of any type to be returned by the function's callbacks |
-| continueOnFailure? | <code>boolean</code> | For executeMultipleSavedQueries(). Ignore this param. |
-| completionMonitor? | <code>object</code> | MultiQueryCompletionMonitor object for executeMultipleSavedQueries(). Ignore this param. |
 
 <a name="execute_json_saved_query"></a>
 
-### .executeJsonSavedQuery(domain, query, params, callbackState?, continueOnFailure?, completionMonitor?) => `Observable`
+### .executeJsonSavedQuery(domain, query, params, callbackState?) => `Observable`
 Performs a saved query.
 
 #### returns `Observable<{jsonQueryResult: CinchyService.JsonQueryResult, callbackState}>`
@@ -224,8 +222,6 @@ Performs a saved query.
 | query | <code>string</code> | The query's name in the domain. |
 | params | <code>string</code> | An object with variables associated or needed with the query (connectionid, transactionid, parameterized values) |
 | callbackState? | <code>any</code> | Used for inserting an object of any type to be returned by the function's callbacks |
-| continueOnFailure? | <code>boolean</code> | For executeMultipleSavedQueries(). Ignore this param. |
-| completionMonitor? | <code>object</code> | MultiQueryCompletionMonitor object for executeMultipleSavedQueries(). Ignore this param. |
 
 <a name="open_connection"></a>
 
@@ -290,15 +286,14 @@ Rollback a transaction.
 
 <a name="execute_multiple_json_saved_queries"></a>
 
-### .executeMultipleJsonSavedQueries(savedQueryParams, callback?, callbackState?) => `Observable`
+### .executeMultipleJsonSavedQueries(savedQueryParams, callbackState?) => `Observable`
 Executes multiple saved queries.
 
-#### returns `Observable<{jsonQueryResult: CinchyService.JsonQueryResult, callbackState}>`
+#### returns `Observable<{jsonQueryResult: CinchyService.JsonQueryResult, callbackState}[]>`
 
 | Param | Type | Description |
 | --- | --- | --- |
-| savedQueryParams | <code>[object]</code> | An object array. Each object containing variables (domain, query, params, successCallback?, errorCallback?, callbackState?, continueOnFailure?, completionMonitor?) |
-| callback? | <code>callback</code> | |
+| savedQueryParams | <code>[object]</code> | An object array. Each object containing variables (domain: string, query: string, params: object, callbackState: any) |
 | callbackState? | <code>any</code> | Used for inserting an object of any type to be returned by the function's callbacks |
 
 <a name="get_groups_current_user_belongs_to"></a>
