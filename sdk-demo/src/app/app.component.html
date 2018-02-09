@@ -52,6 +52,7 @@
             <mat-form-field style="margin-top:20px; width:100%;">
               <textarea matInput placeholder="My Answer" matTextareaAutosize matAutosizeMinRows="1" matAutosizeMaxRows="10" [(ngModel)]='currentAnswer'></textarea>
             </mat-form-field>
+            <p *ngIf='!answersTableEntitled' style='color:red'>You do not have permission to add an answer.</p>
             <mat-card-actions align="end">
               <button mat-button (click)="submitAnswer(i, question.id)">SUBMIT</button>
             </mat-card-actions>

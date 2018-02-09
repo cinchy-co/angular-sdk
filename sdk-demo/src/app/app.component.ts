@@ -24,6 +24,7 @@ export class AppComponent {
   questions: Question[] = [];
   leaderboard: Person[] = [];
   currentAnswer = '';
+  answersTableEntitled = true;
 
   constructor(private _cinchyService: CinchyService) {
     this._cinchyService.login().then( response => {
@@ -131,7 +132,7 @@ export class AppComponent {
   submitAnswer(questionIndex, questionId) {
     const domain = 'SDK Demo';
     const query = 'Get User Id';
-    const params = {'@username': this._cinchyService.getUserIdentity().id};
+    const params = {'@username': this._cinchyService.getUserIdentity()['id']};
 
     const data = [];
 
@@ -177,13 +178,33 @@ export class AppComponent {
       '@transactionid': transactionId // deprecated
     };
 
+    // Executing the Insert Answer Query
     this._cinchyService.executeJsonSavedQuery(domain, queryAnswer, paramsAnswer)
-      .subscribe( resp => {
-        console.log('Sent Answer Transaction');
-        this.commitTransaction(connectionId, transactionId);
-        this.fetchAndLoadAnswers(questionIndex, questionId);
-        this.currentAnswer = '';
-      });
+      .subscribe(
+        // if success, commit transaction
+        resp => {
+          console.log('Sent Answer Transaction');
+          this.commitTransaction(connectionId, transactionId);
+          this.fetchAndLoadAnswers(questionIndex, questionId);
+          this.currentAnswer = '';
+      },
+      // if error, check entitlements for answer table
+        error => {
+          console.log('Could not send answer.');
+          console.log(error);
+          console.log('Checking Answers table entitlements');
+
+          this._cinchyService.getTableEntitlementsByName(domain, 'Answers')
+          .subscribe(
+            response => {
+              console.log(response);
+              if (!response['canAdRows']) {
+                // binded to error message in html ui
+                this.answersTableEntitled = false;
+              }
+          });
+      }
+    );
   }
 
   // commits a transaction
