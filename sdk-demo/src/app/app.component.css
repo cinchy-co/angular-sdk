@@ -1,0 +1,53 @@
+.container {
+    width: 100vw;
+    height: 100vh;
+    padding: 0;
+    margin-top: 40px;
+    margin-bottom: 40px;
+    background-color: #fafafa;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.leaderboardContainer {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    flex-grow: 1;
+    margin-left: 50px;
+    align-items: flex-start;
+}
+
+.leaderboardList{
+    width: 300px;
+}
+
+.feedContainer {
+    display: flex;
+    height: 100%;
+    align-items: flex-start;
+    flex-direction: column;
+    flex-grow: 10;
+}
+
+.questionCard {
+    width: 700px;
+    margin-left: 10%;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.answerCard {
+    box-shadow: 0px 0px;
+}
+
+.userCard {
+    width: 200px;
+    margin: 20px;
+}
+
+.profile-image-template {
+    background-image: url('http://s3.amazonaws.com/nvest/Blank_Club_Website_Avatar_Gray.jpg');
+    background-size: cover;
+  }
