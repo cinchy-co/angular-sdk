@@ -164,6 +164,7 @@ this._cinchyService.executeJsonQuery(query, params).subscribe(
 
 * [CinchyService](#cinchy_service)
    * [.login()](#login) ⇒ <code>Promise</code>
+   * [.getUserIdentity()](#get_user_identity) ⇒ <code>Object</code>
    * [.executeJsonQuery(query, params, callbackState?)](#execute_json_query) ⇒ <code>Observable</code>
    * [.executeJsonSavedQuery(domain, query, params, callbackState?)](#execute_json_saved_query) ⇒ <code>Observable</code>
    * [.openConnection(callbackState?)](#open_connection) ⇒ <code>Observable</code>
@@ -195,6 +196,13 @@ this._cinchyService.login().then( response => {
     console.log('Login Failed');  
 });
 ```
+
+<a name="get_user_identity"></a>
+
+### .getUserIdentity() => `object`
+Returns the logged in user's identity information.
+
+Example the return object.id is the user's username. object.sub is the user's Cinchy Id.
 
 <a name="execute_json_query"></a>
 

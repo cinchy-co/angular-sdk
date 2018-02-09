@@ -6,7 +6,7 @@ import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/catch';
 import 'rxjs/add/operator/do';
 import { PACKAGE_ROOT_URL } from '@angular/core/src/application_tokens';
-import { OAuthService, JwksValidationHandler, AuthConfig, OAuthStorage, OAuthResourceServerErrorHandler, OAuthModuleConfig } from 'angular-oauth2-oidc';
+import { OAuthService, JwksValidationHandler, AuthConfig, OAuthStorage, OAuthResourceServerErrorHandler, OAuthModuleConfig, ReceivedTokens } from 'angular-oauth2-oidc';
 import { CinchyConfig } from './cinchy.config';
 import { CinchyGlobalConfig } from './cinchy.global.config';
 import { forkJoin } from 'rxjs/observable/forkJoin';
@@ -22,7 +22,7 @@ export class CinchyService {
         this.cinchyRootUrl = this.config.cinchyRootUrl;
     }
 
-    login(): Promise<boolean> {
+    login(): Promise<Boolean> {
         const authConfig: AuthConfig = {
             issuer: this._cinchyGlobalConfig.authority,
             redirectUri: this._cinchyGlobalConfig.redirectUri,
@@ -36,6 +36,10 @@ export class CinchyService {
         this._oAuthService.tokenValidationHandler = new JwksValidationHandler();
 
         return this._oAuthService.loadDiscoveryDocumentAndLogin();
+    }
+
+    getUserIdentity(): object {
+        return this._oAuthService.getIdentityClaims();
     }
 
     private _executeJsonQuery(apiUrl: string, params: object, errorMsg: string, callbackState): Observable<{jsonQueryResult: CinchyService.JsonQueryResult, callbackState}> {
@@ -106,7 +110,7 @@ export class CinchyService {
             throw new CinchyService.CinchyException('Domain must be a valid string', domain);
         if (!isNonNullOrWhitespaceString(query))
             throw new CinchyService.CinchyException('Query must be a valid string', query);
-        let apiUrl = this.cinchyRootUrl + '/API/' + domain + '/' + query;//
+        let apiUrl = this.cinchyRootUrl + '/API/' + domain + '/' + query;
         let errorMsg = 'Failed to execute json saved query ' + query + ' within domain ' + domain;
 
         return <Observable <{jsonQueryResult: CinchyService.JsonQueryResult, callbackState}>> this._executeJsonQuery(apiUrl, params, errorMsg, callbackState)
@@ -120,7 +124,7 @@ export class CinchyService {
     openConnection(callbackState?): Observable<{connectionId: string, callbackState}> {
         let errorMsg = 'Failed to open connection';
         return <Observable<{connectionId: string, callbackState}>> this._httpClient.get(this.cinchyRootUrl + '/API/OpenConnection', { responseType: 'text' } )
-            .map(data => { 
+            .map(data => {
                     let connectionId = data;
                     let returnVal = { connectionId: connectionId, callbackState: callbackState};
                     return { connectionId: connectionId, callbackState: callbackState};
@@ -217,7 +221,7 @@ export class CinchyService {
 
         return <Observable<{connectionId: string, transactionId: string, callbackState}>> this._httpClient.post(this.cinchyRootUrl + '/API/RollbackTransaction',
             form_data,
-            { 
+            {
                 headers: new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded'),
                 responseType: 'text'
             }
