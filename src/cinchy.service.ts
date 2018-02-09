@@ -30,7 +30,7 @@ export class CinchyService {
             scope: this._cinchyGlobalConfig.scope,
             responseType: this._cinchyGlobalConfig.responseType,
             requireHttps: this._cinchyGlobalConfig.requireHttps
-        }
+        };
 
         this._oAuthService.configure(authConfig);
         this._oAuthService.tokenValidationHandler = new JwksValidationHandler();
@@ -106,7 +106,7 @@ export class CinchyService {
             throw new CinchyService.CinchyException('Domain must be a valid string', domain);
         if (!isNonNullOrWhitespaceString(query))
             throw new CinchyService.CinchyException('Query must be a valid string', query);
-        let apiUrl = this.cinchyRootUrl + '/API/' + domain + '/' + query;
+        let apiUrl = this.cinchyRootUrl + '/API/' + domain + '/' + query;//
         let errorMsg = 'Failed to execute json saved query ' + query + ' within domain ' + domain;
 
         return <Observable <{jsonQueryResult: CinchyService.JsonQueryResult, callbackState}>> this._executeJsonQuery(apiUrl, params, errorMsg, callbackState)
@@ -120,7 +120,7 @@ export class CinchyService {
     openConnection(callbackState?): Observable<{connectionId: string, callbackState}> {
         let errorMsg = 'Failed to open connection';
         return <Observable<{connectionId: string, callbackState}>> this._httpClient.get(this.cinchyRootUrl + '/API/OpenConnection', { responseType: 'text' } )
-            .map(data => {
+            .map(data => { 
                     let connectionId = data;
                     let returnVal = { connectionId: connectionId, callbackState: callbackState};
                     return { connectionId: connectionId, callbackState: callbackState};
@@ -193,7 +193,10 @@ export class CinchyService {
 
         return <Observable<{connectionId: string, transactionId: string, callbackState}>> this._httpClient.post(this.cinchyRootUrl + '/API/CommitTransaction',
             form_data,
-            { headers: new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded') }
+            {
+                headers: new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded'),
+                responseType: 'text'
+            }
         ).map( data => {
             return({connectionId: connectionId, transactionId: transactionId, callbackState});
         }).catch(error => {
@@ -214,7 +217,10 @@ export class CinchyService {
 
         return <Observable<{connectionId: string, transactionId: string, callbackState}>> this._httpClient.post(this.cinchyRootUrl + '/API/RollbackTransaction',
             form_data,
-            { headers: new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded') }
+            { 
+                headers: new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded'),
+                responseType: 'text'
+            }
         ).map(data => {
             return({connectionId: connectionId, transactionId: transactionId, callbackState});
         }).catch(error => {
