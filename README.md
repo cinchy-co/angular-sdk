@@ -96,6 +96,8 @@ Simply the iframe-resizer .js files into your project's scripts within `.angular
 ],
 ```
 
+Please note that in order for iFrame to properly resize within the Cinchy platform, the height of your outer most elements (a div container for example) needs to have a style `height` of `auto`.
+
 ## Example Usage
 Once your Angular app is properly set-up and logged into Cinchy, you may start executing queries.
 
