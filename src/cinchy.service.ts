@@ -17,7 +17,7 @@ export class CinchyService {
 
     private cinchyRootUrl;
 
-    constructor(private _httpClient: HttpClient, private _oAuthService: OAuthService, private _cinchyGlobalConfig: CinchyGlobalConfig, @Inject(CinchyConfig) private config: CinchyConfig) {
+    constructor(private _httpClient: HttpClient, private _oAuthStorge: OAuthStorage, private _oAuthService: OAuthService, private _cinchyGlobalConfig: CinchyGlobalConfig, @Inject(CinchyConfig) private config: CinchyConfig) {
         this._cinchyGlobalConfig.setUserValues(this.config);
         this.cinchyRootUrl = this.config.cinchyRootUrl;
     }
@@ -44,13 +44,21 @@ export class CinchyService {
 
     private _executeJsonQuery(apiUrl: string, params: object, errorMsg: string, callbackState): Observable<{jsonQueryResult: CinchyService.JsonQueryResult, callbackState}> {
         let form_data = null;
+        if (!params) {
+            params = {
+                resultformat: 'JSON'
+            };
+        }
         if (isNonNullObject(params)) {
+            params['resultformat'] = 'JSON';
             form_data = this.getFormUrlEncodedData(params);
         }
 
         return <Observable <{jsonQueryResult: CinchyService.JsonQueryResult, callbackState}>> this._httpClient.post(apiUrl,
             form_data,
-            { headers: new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded') }
+            {
+                headers: new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded'),
+            }
             ).map( data => {
                 let jsonQueryResult = new CinchyService.JsonQueryResult(data);
                 return {jsonQueryResult: jsonQueryResult, callbackState: callbackState};
@@ -60,11 +68,6 @@ export class CinchyService {
                     statusText: error.statusText,
                     response: error.responseJSON
                 });
-                // if (isBoolean(continueOnFailure) && continueOnFailure) {
-                //     cinchyEx.logError();
-                //     if (isNonNullObject(completionMonitor) && isFunction(completionMonitor.incrementCompleted))
-                //         completionMonitor.incrementCompleted();
-                // }
                 throw Observable.throw({cinchyException: cinchyEx, callbackState: callbackState});
             });
     }
@@ -74,7 +77,7 @@ export class CinchyService {
             throw new CinchyService.CinchyException('Query cannot be empty', query);
         let formattedParams = {};
         formattedParams['Query'] = query;
-        formattedParams['ResultFormat'] = 'JSON';
+        formattedParams['resultformat'] = 'JSON';
         if (isNonNullObject(params)) {
             let idx = 0;
             Object.keys(params).forEach(function (key) {
