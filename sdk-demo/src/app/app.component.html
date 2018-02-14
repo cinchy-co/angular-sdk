@@ -22,10 +22,13 @@
       <!--QUESTIONS-->
       <mat-card class="questionCard" *ngFor="let question of questions; let i = index" [attr.data-index]="i">
         <mat-card-header>
-          <div mat-card-avatar class="profile-image-template"></div>
+          <!-- <div mat-card-avatar class="profile-image-template"></div> -->
+          <img mat-card-avatar *ngIf='question.askerPhoto' [src]="question.askerPhoto">
+          <img mat-card-avatar *ngIf='!question.askerPhoto' class="profile-image-template">
           <mat-card-title style="font-weight:bold">{{ question.askerName }}</mat-card-title>
           <mat-card-subtitle> {{ question.location }} </mat-card-subtitle>
         </mat-card-header>
+        
         <mat-card-content>
           <p>
             {{ question.question }}
@@ -36,7 +39,8 @@
         <ng-container *ngIf="question.showAnswers">
           <mat-card class="answerCard" *ngFor="let answer of question.answers">
             <mat-card-header>
-              <div mat-card-avatar class="profile-image-template"></div>
+              <img mat-card-avatar *ngIf='answer.answererPhoto' [src]="answer.answererPhoto">
+              <img mat-card-avatar *ngIf='!answer.answererPhoto' class="profile-image-template">
               <mat-card-title style="font-weight:bold">{{ answer.answererName }}</mat-card-title>
               <mat-card-subtitle> {{ question.location }} </mat-card-subtitle>
             </mat-card-header>
@@ -48,11 +52,10 @@
           </mat-card>
 
           <!--TEXT AREA FOR ANSWERING QUESTION-->
-          <mat-card>
+          <mat-card *ngIf="currentUserCanAnswer">
             <mat-form-field style="margin-top:20px; width:100%;">
               <textarea matInput placeholder="My Answer" matTextareaAutosize matAutosizeMinRows="1" matAutosizeMaxRows="10" [(ngModel)]='currentAnswer'></textarea>
             </mat-form-field>
-            <p *ngIf='!answersTableEntitled' style='color:red'>You do not have permission to add an answer.</p>
             <mat-card-actions align="end">
               <button mat-button (click)="submitAnswer(i, question.id)">SUBMIT</button>
             </mat-card-actions>

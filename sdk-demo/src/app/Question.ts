@@ -1,10 +1,12 @@
 import { IAnswer, Answer } from './Answer';
+import { SafeResourceUrl } from '@angular/platform-browser/src/security/dom_sanitization_service';
 
 export interface IQuestion {
     id: number;
     question: string;
     askerName: string;
     askerUsername: string;
+    askerPhoto: SafeResourceUrl;
     location: string;
     showAnswers: boolean;
     showAnswersButtonLabel: string;
@@ -14,7 +16,7 @@ export interface IQuestion {
 export class Question implements IQuestion {
     public showAnswersButtonLabel: string;
     public answers: IAnswer[];
-    public askerBase64ProfilePic: string;
+    public askerPhoto: SafeResourceUrl;
 
     constructor(public id: number,
                 public question: string,
@@ -23,8 +25,13 @@ export class Question implements IQuestion {
                 public location: string,
                 public showAnswers: boolean
     ) {
+        console.log(this.askerPhoto);
         this.setShowAnswersButtonLabel();
-     }
+    }
+
+    setPhoto(photo: SafeResourceUrl) {
+        this.askerPhoto = photo;
+    }
 
     setAnswers(answers: IAnswer[]) {
         this.answers = answers;

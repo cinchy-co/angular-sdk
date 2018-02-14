@@ -3,6 +3,7 @@ import { CinchyConfig, CinchyService } from '@cinchy-co/angular-sdk';
 import { IQuestion, Question } from './Question';
 import { IPerson, Person } from './Person';
 import { IAnswer, Answer } from './Answer';
+import { DomSanitizer } from '@angular/platform-browser';
 
 export const MyCinchyAppConfig: CinchyConfig = {
   cinchyRootUrl: 'http://qa1-app1.cinchy.co',
@@ -24,19 +25,25 @@ export class AppComponent {
   questions: Question[] = [];
   leaderboard: Person[] = [];
   currentAnswer = '';
-  answersTableEntitled = true;
+  currentUserCanAnswer: boolean;
 
-  constructor(private _cinchyService: CinchyService) {
+  constructor(private _cinchyService: CinchyService, private _domSanitizer: DomSanitizer) {
     this._cinchyService.login().then( response => {
       console.log(response);
       console.log('Logged In!');
 
+      // Loads initial data by executing multiple saved queries
       this.fetchAndLoadInitialData();
 
-      this.logGetGroupsCurrentUserBelongsTo();
-      this.logGetTableEntitlementsByName('SDK Demo', 'Questions');
+      // If user is entitled to answer, display option to answer
+      this.checkIfUserIsEntitledToAnswer();
 
+      // Simply logs access rights groups of current user
+      this.logGetGroupsCurrentUserBelongsTo();
+
+      // Logs the current user's information
       console.log(this._cinchyService.getUserIdentity());
+
     }).catch( error => {
       console.log(error);
     });
@@ -70,6 +77,20 @@ export class AppComponent {
       );
   }
 
+  // Checks if user can add rows to the Answers table
+  checkIfUserIsEntitledToAnswer() {
+    const domain = 'SDK Demo';
+    const tableName = 'Answers';
+
+    this._cinchyService.getTableEntitlementsByName(domain, tableName)
+      .subscribe(
+        response => {
+          console.log(response);
+          this.currentUserCanAnswer = response['canAddRows'];
+        }
+      );
+  }
+
   // Takes the response of Questions data and parses it and loads it
   loadQuestions(response) {
     const data = [];
@@ -79,13 +100,21 @@ export class AppComponent {
         for (const col of result.getColNames()) {
           this_row[col] = result.getCellValue(col);
         }
-        data.push(new Question(this_row['QuestionId'],
-                      this_row['Question'],
-                      this_row['AskerName'],
-                      this_row['AskerUsername'],
-                      this_row['Location'],
-                      false
-            ));
+
+        const question = new Question(this_row['QuestionId'],
+                              this_row['Question'],
+                              this_row['AskerName'],
+                              this_row['AskerUsername'],
+                              this_row['Location'],
+                              false
+        );
+
+        if (this_row['AskerPhoto']) {
+          question.setPhoto(this._domSanitizer.bypassSecurityTrustResourceUrl('data:image/jpg;base64,' + this_row['AskerPhoto']));
+        }
+
+        data.push(question);
+
       }
     this.questions = data;
   }
@@ -120,15 +149,31 @@ export class AppComponent {
           for (const col of result.getColNames()) {
             this_row[col] = result.getCellValue(col);
           }
-          data.push(new Answer(this_row['Answer'], this_row['Name'], this_row['Username']));
+
+          const answer = new Answer(this_row['Answer'], this_row['Name'], this_row['Username']);
+
+          if (this_row['AnswererPhoto']) {
+            answer.setPhoto(this._domSanitizer.bypassSecurityTrustResourceUrl('data:image/jpg;base64,' + this_row['AnswererPhoto']));
+          }
+
+          data.push(answer);
         }
         this.questions[questionIndex].setAnswers(data);
         this.questions[questionIndex].toggleShowAnswers();
       });
   }
 
-  // Activated on "SUBMIT" button click
-  // it starts a chain of function calls that open a connection, starts a transaction, submits an answer, commits, and closes the connection
+  /* Activated on "SUBMIT" button click
+   * Starts a chain of function calls in order to commit a transaction.
+   * Steps:
+   *  1. Execute "Get User Id" where we obtain the Cinchy Id of the current user in [SDK Demo].[Users] table. We need it for step 4.
+   *  2. Call openConnectionForAnswerTransaction() function that opens a connection
+   *  3. Call beginTransaction() function that begins a transaction
+   *  4. Call sendAnswer() function that sends the inserts the answer into the table associated with the user id from step 1
+   *  5. Call commitTransaction() function that commits the transaction.
+   *  6. Call closeConnection() to finish.
+   *  7. Call reloadLeaderboard()
+  */
   submitAnswer(questionIndex, questionId) {
     const domain = 'SDK Demo';
     const query = 'Get User Id';
@@ -162,12 +207,12 @@ export class AppComponent {
     .subscribe (
       response => {
         console.log('Began Transaction');
-        this.sendAnswerTransaction(answer, questionIndex, questionId, userId, connectionId, response.transactionId);
+        this.sendAnswer(answer, questionIndex, questionId, userId, connectionId, response.transactionId);
     });
   }
 
   // sends the answer based on the connectionid
-  sendAnswerTransaction(answer, questionIndex, questionId, userId, connectionId, transactionId) {
+  sendAnswer(answer, questionIndex, questionId, userId, connectionId, transactionId) {
     const domain = 'SDK Demo';
     const queryAnswer = 'Insert Answer';
     const paramsAnswer = {
@@ -188,21 +233,9 @@ export class AppComponent {
           this.fetchAndLoadAnswers(questionIndex, questionId);
           this.currentAnswer = '';
       },
-      // if error, check entitlements for answer table
         error => {
           console.log('Could not send answer.');
           console.log(error);
-          console.log('Checking Answers table entitlements');
-
-          this._cinchyService.getTableEntitlementsByName(domain, 'Answers')
-          .subscribe(
-            response => {
-              console.log(response);
-              if (!response['canAdRows']) {
-                // binded to error message in html ui
-                this.answersTableEntitled = false;
-              }
-          });
       }
     );
   }
@@ -259,15 +292,4 @@ export class AppComponent {
         console.log(response);
     });
   }
-
-  // fetches table entitlements and just logs it
-  logGetTableEntitlementsByName(domainName: string, tableName: string) {
-    this._cinchyService.getTableEntitlementsByName(domainName, tableName)
-    .subscribe(
-      response => {
-        console.log('The table entitlements of ' + domainName + ': ' + tableName + ' is:');
-        console.log(response);
-    });
-  }
-
 }
