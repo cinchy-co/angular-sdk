@@ -21,8 +21,8 @@
     "annotateForClosureCompiler": true,
     "strictMetadataEmit": true,
     "skipTemplateCodegen": true,
-    "flatModuleOutFile": "cinchy-angular.js",
-    "flatModuleId": "cinchy-angular"
+    "flatModuleOutFile": "angular-sdk.js",
+    "flatModuleId": "@cinchy-co/angular-sdk"
   },
   "files": [
     "./index.ts"

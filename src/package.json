@@ -16,10 +16,10 @@
   "bugs": {
     "url": "https://github.com/cinchy-co/angular-sdk/issues"
   },
-  "main": "cinchy-angular.umd.js",
-  "module": "cinchy-angular.js",
-  "jsnext:main": "cinchy-angular.js",
-  "typings": "cinchy-angular.d.ts",
+  "main": "angular-sdk.umd.js",
+  "module": "angular-sdk.js",
+  "jsnext:main": "angular-sdk.js",
+  "typings": "angular-sdk.d.ts",
   "peerDependencies": {
     "@angular/core": "^4.0.0",
     "rxjs": "^5.1.0",

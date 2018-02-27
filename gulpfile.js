@@ -125,7 +125,7 @@ gulp.task('rollup:umd', function () {
       // The name to use for the module for UMD/IIFE bundles
       // (required for bundles with exports)
       // See "name" in https://rollupjs.org/#core-functionality
-      name: 'cinchy-angular',
+      name: 'angular-sdk',
 
       // See "globals" in https://rollupjs.org/#core-functionality
       globals: {
@@ -133,7 +133,7 @@ gulp.task('rollup:umd', function () {
       }
 
     }))
-    .pipe(rename('cinchy-angular.umd.js'))
+    .pipe(rename('angular-sdk.umd.js'))
     .pipe(gulp.dest(distFolder));
 });
 
