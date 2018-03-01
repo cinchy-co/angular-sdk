@@ -42,7 +42,7 @@ export class CinchyService {
         return this._oAuthService.getIdentityClaims();
     }
 
-    private _executeJsonQuery(apiUrl: string, params: object, errorMsg: string, callbackState): Observable<{jsonQueryResult: CinchyService.JsonQueryResult, callbackState}> {
+    private _executeJsonQuery(apiUrl: string, params: object, errorMsg: string, callbackState): Observable<{jsonQueryResult: Cinchy.JsonQueryResult, callbackState}> {
         let form_data = null;
         if (!params) {
             params = {
@@ -54,16 +54,16 @@ export class CinchyService {
             form_data = this.getFormUrlEncodedData(params);
         }
 
-        return <Observable <{jsonQueryResult: CinchyService.JsonQueryResult, callbackState}>> this._httpClient.post(apiUrl,
+        return <Observable <{jsonQueryResult: Cinchy.JsonQueryResult, callbackState}>> this._httpClient.post(apiUrl,
             form_data,
             {
                 headers: new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded'),
             }
             ).map( data => {
-                let jsonQueryResult = new CinchyService.JsonQueryResult(data);
+                let jsonQueryResult = new Cinchy.JsonQueryResult(data);
                 return {jsonQueryResult: jsonQueryResult, callbackState: callbackState};
             }).catch ( error => {
-                let cinchyEx = new CinchyService.CinchyException(errorMsg, {
+                let cinchyEx = new Cinchy.CinchyException(errorMsg, {
                     status: error.status,
                     statusText: error.statusText,
                     response: error.responseJSON
@@ -72,9 +72,9 @@ export class CinchyService {
             });
     }
 
-    executeJsonQuery(query: string, params: object, callbackState?): Observable<{jsonQueryResult: CinchyService.JsonQueryResult, callbackState}> {
+    executeJsonQuery(query: string, params: object, callbackState?): Observable<{jsonQueryResult: Cinchy.JsonQueryResult, callbackState}> {
         if (!isNonNullOrWhitespaceString(query))
-            throw new CinchyService.CinchyException('Query cannot be empty', query);
+            throw new Cinchy.CinchyException('Query cannot be empty', query);
         let formattedParams = {};
         formattedParams['Query'] = query;
         formattedParams['resultformat'] = 'JSON';
@@ -101,22 +101,22 @@ export class CinchyService {
         let apiUrl = this.cinchyRootUrl + '/API/ExecuteCQL';
         let errorMsg = 'Failed to execute query ' + query;
 
-        return <Observable <{jsonQueryResult: CinchyService.JsonQueryResult, callbackState}>> this._executeJsonQuery(apiUrl, formattedParams, errorMsg, callbackState)
+        return <Observable <{jsonQueryResult: Cinchy.JsonQueryResult, callbackState}>> this._executeJsonQuery(apiUrl, formattedParams, errorMsg, callbackState)
             .map( response => response)
             .catch( error => {
                 throw Observable.throw(error);
         });
     }
 
-    executeJsonSavedQuery(domain: string, query: string, params: object, callbackState?): Observable<{jsonQueryResult: CinchyService.JsonQueryResult, callbackState}> {
+    executeJsonSavedQuery(domain: string, query: string, params: object, callbackState?): Observable<{jsonQueryResult: Cinchy.JsonQueryResult, callbackState}> {
         if (!isNonNullOrWhitespaceString(domain))
-            throw new CinchyService.CinchyException('Domain must be a valid string', domain);
+            throw new Cinchy.CinchyException('Domain must be a valid string', domain);
         if (!isNonNullOrWhitespaceString(query))
-            throw new CinchyService.CinchyException('Query must be a valid string', query);
+            throw new Cinchy.CinchyException('Query must be a valid string', query);
         let apiUrl = this.cinchyRootUrl + '/API/' + domain + '/' + query;
         let errorMsg = 'Failed to execute json saved query ' + query + ' within domain ' + domain;
 
-        return <Observable <{jsonQueryResult: CinchyService.JsonQueryResult, callbackState}>> this._executeJsonQuery(apiUrl, params, errorMsg, callbackState)
+        return <Observable <{jsonQueryResult: Cinchy.JsonQueryResult, callbackState}>> this._executeJsonQuery(apiUrl, params, errorMsg, callbackState)
             .map( response => response)
             .catch(error => {
                 throw Observable.throw(error);
@@ -133,7 +133,7 @@ export class CinchyService {
                     return { connectionId: connectionId, callbackState: callbackState};
                 }
             ).catch(error => {
-                    let cinchyEx = new CinchyService.CinchyException(errorMsg, {
+                    let cinchyEx = new Cinchy.CinchyException(errorMsg, {
                         status: error.status,
                         statusText: error.statusText,
                         response: error.responseJSON
@@ -158,7 +158,7 @@ export class CinchyService {
         ).map(data => {
             return({connectionId: connectionId, callbackState: callbackState});
         }).catch(error => {
-            let cinchyEx = new CinchyService.CinchyException(errorMsg, {
+            let cinchyEx = new Cinchy.CinchyException(errorMsg, {
                 status: error.status,
                 statusText: error.statusText,
                 response: error.responseJSON
@@ -183,7 +183,7 @@ export class CinchyService {
             let transactionId = data;
             return({transactionId: transactionId, callbackState: callbackState});
         }).catch(error => {
-            let cinchyEx = new CinchyService.CinchyException(errorMsg, {
+            let cinchyEx = new Cinchy.CinchyException(errorMsg, {
                 status: error.status,
                 statusText: error.statusText,
                 response: error.responseJSON
@@ -207,7 +207,7 @@ export class CinchyService {
         ).map( data => {
             return({connectionId: connectionId, transactionId: transactionId, callbackState});
         }).catch(error => {
-            let cinchyEx = new CinchyService.CinchyException(errorMsg, {
+            let cinchyEx = new Cinchy.CinchyException(errorMsg, {
                 status: error.status,
                 statusText: error.statusText,
                 response: error.responseJSON
@@ -231,7 +231,7 @@ export class CinchyService {
         ).map(data => {
             return({connectionId: connectionId, transactionId: transactionId, callbackState});
         }).catch(error => {
-            let cinchyEx = new CinchyService.CinchyException(errorMsg, {
+            let cinchyEx = new Cinchy.CinchyException(errorMsg, {
                 status: error.status,
                 statusText: error.statusText,
                 response: error.responseJSON
@@ -240,16 +240,16 @@ export class CinchyService {
         });
     }
 
-    executeMultipleJsonSavedQueries(savedQueryParams: {domain: string, query: string, params, callbackState}[], callbackState?): Observable<{jsonQueryResult: CinchyService.JsonQueryResult, callbackState}[]> {
+    executeMultipleJsonSavedQueries(savedQueryParams: {domain: string, query: string, params, callbackState}[], callbackState?): Observable<{jsonQueryResult: Cinchy.JsonQueryResult, callbackState}[]> {
         if (!isNonZeroLengthArray(savedQueryParams))
-            throw new CinchyService.CinchyException('Failed to execute json saved queries, savedQueryParams must be specified as an array of objects, with each object containing the parameters required to invoke a single call to the executeJsonSavedQuery method', savedQueryParams);
+            throw new Cinchy.CinchyException('Failed to execute json saved queries, savedQueryParams must be specified as an array of objects, with each object containing the parameters required to invoke a single call to the executeJsonSavedQuery method', savedQueryParams);
 
         let allObservables = [];
         for (let i = 0; i < savedQueryParams.length; i++) {
-            allObservables.push(<Observable<{jsonQueryResult: CinchyService.JsonQueryResult, callbackState}>> this.executeJsonSavedQuery(savedQueryParams[i].domain, savedQueryParams[i].query, savedQueryParams[i].params, savedQueryParams[i].callbackState));
+            allObservables.push(<Observable<{jsonQueryResult: Cinchy.JsonQueryResult, callbackState}>> this.executeJsonSavedQuery(savedQueryParams[i].domain, savedQueryParams[i].query, savedQueryParams[i].params, savedQueryParams[i].callbackState));
 
             if (i === savedQueryParams.length - 1) {
-                return <Observable<{jsonQueryResult: CinchyService.JsonQueryResult, callbackState}[]>> forkJoin(allObservables);
+                return <Observable<{jsonQueryResult: Cinchy.JsonQueryResult, callbackState}[]>> forkJoin(allObservables);
             }
         }
     }
@@ -374,7 +374,7 @@ export class CinchyService {
     };
 }
 
-export namespace CinchyService {
+export namespace Cinchy {
     export class CinchyException {
         message: string;
         data: any;
