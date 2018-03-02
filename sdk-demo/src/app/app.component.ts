@@ -32,7 +32,7 @@ export class AppComponent {
       console.log(response);
       console.log('Logged In!');
 
-      // Loads initial data by executing multiple saved queries
+      // Loads initial data by executing multiple queries
       this.fetchAndLoadInitialData();
 
       // If user is entitled to answer, display option to answer
@@ -51,7 +51,7 @@ export class AppComponent {
 
   // Fetches Questions and Leaderboard data
   fetchAndLoadInitialData() {
-    const savedQueriesToExecute = [
+    const queriesToExecute = [
       {
         domain: 'SDK Demo',
         query: 'Get Questions',
@@ -65,7 +65,7 @@ export class AppComponent {
       }
     ];
 
-    this._cinchyService.executeMultipleJsonSavedQueries(savedQueriesToExecute)
+    this._cinchyService.executeQueries(queriesToExecute)
       .subscribe(
         response => {
           this.loadQuestions(response[0]);
@@ -94,7 +94,11 @@ export class AppComponent {
   // Takes the response of Questions data and parses it and loads it
   loadQuestions(response) {
     const data = [];
-    const result = response.jsonQueryResult;
+    const result = response.queryResult;
+
+    // Logging the result as an array of rows
+    console.log(result.toObjectArray());
+
       while (result.moveToNextRow()) {
         const this_row = {};
         for (const col of result.getColNames()) {
@@ -122,7 +126,7 @@ export class AppComponent {
   // Takes the response of Leaderboard data and parses it and loads it
   loadLeaderboard(response) {
     const data = [];
-    const result = response.jsonQueryResult;
+    const result = response.queryResult;
       while (result.moveToNextRow()) {
         const this_row = {};
         for (const col of result.getColNames()) {
@@ -141,9 +145,9 @@ export class AppComponent {
 
     const data = [];
 
-    this._cinchyService.executeJsonSavedQuery(domain, query, params)
+    this._cinchyService.executeQuery(domain, query, params)
       .subscribe( response => {
-        const result = response.jsonQueryResult;
+        const result = response.queryResult;
         while (result.moveToNextRow()) {
           const this_row = {};
           for (const col of result.getColNames()) {
@@ -181,9 +185,9 @@ export class AppComponent {
 
     const data = [];
 
-    this._cinchyService.executeJsonSavedQuery(domain, query, params)
+    this._cinchyService.executeQuery(domain, query, params)
       .subscribe( response => {
-        const result = response.jsonQueryResult;
+        const result = response.queryResult;
         result.moveToNextRow();
         const userId = result.getCellValue('Cinchy Id');
 
@@ -224,7 +228,7 @@ export class AppComponent {
     };
 
     // Executing the Insert Answer Query
-    this._cinchyService.executeJsonSavedQuery(domain, queryAnswer, paramsAnswer)
+    this._cinchyService.executeQuery(domain, queryAnswer, paramsAnswer)
       .subscribe(
         // if success, commit transaction
         resp => {
@@ -275,7 +279,7 @@ export class AppComponent {
     const query = 'Get Leaderboard';
     const params = null;
 
-    this._cinchyService.executeJsonSavedQuery(domain, query, params)
+    this._cinchyService.executeQuery(domain, query, params)
       .subscribe(
         response => {
           this.loadLeaderboard(response);

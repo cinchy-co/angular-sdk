@@ -25,7 +25,6 @@ export class Question implements IQuestion {
                 public location: string,
                 public showAnswers: boolean
     ) {
-        console.log(this.askerPhoto);
         this.setShowAnswersButtonLabel();
     }
 
