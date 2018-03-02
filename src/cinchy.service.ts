@@ -22,10 +22,17 @@ export class CinchyService {
         this.cinchyRootUrl = this.config.cinchyRootUrl;
     }
 
-    login(): Promise<Boolean> {
+    login(redirectUriOverride?: string): Promise<Boolean> {
+        let redirectUri;
+        if (redirectUriOverride) {
+            redirectUri = redirectUriOverride;
+        } else {
+            redirectUri = this._cinchyGlobalConfig.redirectUri;
+        }
+
         const authConfig: AuthConfig = {
             issuer: this._cinchyGlobalConfig.authority,
-            redirectUri: this._cinchyGlobalConfig.redirectUri,
+            redirectUri: redirectUri,
             clientId: this._cinchyGlobalConfig.clientId,
             scope: this._cinchyGlobalConfig.scope,
             responseType: this._cinchyGlobalConfig.responseType,
@@ -42,9 +49,9 @@ export class CinchyService {
         return this._oAuthService.getIdentityClaims();
     }
 
-    private _executeJsonQuery(apiUrl: string, params: object, errorMsg: string, callbackState): Observable<{jsonQueryResult: Cinchy.JsonQueryResult, callbackState}> {
+    private _executeQuery(apiUrl: string, params: object, errorMsg: string, callbackState): Observable<{queryResult: Cinchy.QueryResult, callbackState}> {
         let form_data = null;
-        if (!params) {
+        if (!isNonNullObject(params)) {
             params = {
                 resultformat: 'JSON'
             };
@@ -54,14 +61,14 @@ export class CinchyService {
             form_data = this.getFormUrlEncodedData(params);
         }
 
-        return <Observable <{jsonQueryResult: Cinchy.JsonQueryResult, callbackState}>> this._httpClient.post(apiUrl,
+        return <Observable <{queryResult: Cinchy.QueryResult, callbackState}>> this._httpClient.post(apiUrl,
             form_data,
             {
                 headers: new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded'),
             }
             ).map( data => {
-                let jsonQueryResult = new Cinchy.JsonQueryResult(data);
-                return {jsonQueryResult: jsonQueryResult, callbackState: callbackState};
+                let queryResult = new Cinchy.QueryResult(data);
+                return {queryResult: queryResult, callbackState: callbackState};
             }).catch ( error => {
                 let cinchyEx = new Cinchy.CinchyException(errorMsg, {
                     status: error.status,
@@ -72,7 +79,7 @@ export class CinchyService {
             });
     }
 
-    executeJsonQuery(query: string, params: object, callbackState?): Observable<{jsonQueryResult: Cinchy.JsonQueryResult, callbackState}> {
+    executeCsql(query: string, params: object, callbackState?): Observable<{queryResult: Cinchy.QueryResult, callbackState}> {
         if (!isNonNullOrWhitespaceString(query))
             throw new Cinchy.CinchyException('Query cannot be empty', query);
         let formattedParams = {};
@@ -101,22 +108,22 @@ export class CinchyService {
         let apiUrl = this.cinchyRootUrl + '/API/ExecuteCQL';
         let errorMsg = 'Failed to execute query ' + query;
 
-        return <Observable <{jsonQueryResult: Cinchy.JsonQueryResult, callbackState}>> this._executeJsonQuery(apiUrl, formattedParams, errorMsg, callbackState)
+        return <Observable <{queryResult: Cinchy.QueryResult, callbackState}>> this._executeQuery(apiUrl, formattedParams, errorMsg, callbackState)
             .map( response => response)
             .catch( error => {
                 throw Observable.throw(error);
         });
     }
 
-    executeJsonSavedQuery(domain: string, query: string, params: object, callbackState?): Observable<{jsonQueryResult: Cinchy.JsonQueryResult, callbackState}> {
+    executeQuery(domain: string, query: string, params: object, callbackState?): Observable<{queryResult: Cinchy.QueryResult, callbackState}> {
         if (!isNonNullOrWhitespaceString(domain))
             throw new Cinchy.CinchyException('Domain must be a valid string', domain);
         if (!isNonNullOrWhitespaceString(query))
             throw new Cinchy.CinchyException('Query must be a valid string', query);
         let apiUrl = this.cinchyRootUrl + '/API/' + domain + '/' + query;
-        let errorMsg = 'Failed to execute json saved query ' + query + ' within domain ' + domain;
+        let errorMsg = 'Failed to execute query ' + query + ' within domain ' + domain;
 
-        return <Observable <{jsonQueryResult: Cinchy.JsonQueryResult, callbackState}>> this._executeJsonQuery(apiUrl, params, errorMsg, callbackState)
+        return <Observable <{queryResult: Cinchy.QueryResult, callbackState}>> this._executeQuery(apiUrl, params, errorMsg, callbackState)
             .map( response => response)
             .catch(error => {
                 throw Observable.throw(error);
@@ -240,16 +247,16 @@ export class CinchyService {
         });
     }
 
-    executeMultipleJsonSavedQueries(savedQueryParams: {domain: string, query: string, params, callbackState}[], callbackState?): Observable<{jsonQueryResult: Cinchy.JsonQueryResult, callbackState}[]> {
-        if (!isNonZeroLengthArray(savedQueryParams))
-            throw new Cinchy.CinchyException('Failed to execute json saved queries, savedQueryParams must be specified as an array of objects, with each object containing the parameters required to invoke a single call to the executeJsonSavedQuery method', savedQueryParams);
+    executeQueries(queryParams: {domain: string, query: string, params, callbackState}[], callbackState?): Observable<{queryResult: Cinchy.QueryResult, callbackState}[]> {
+        if (!isNonZeroLengthArray(queryParams))
+            throw new Cinchy.CinchyException('Failed to execute queries, queryParams must be specified as an array of objects, with each object containing the parameters required to invoke a single call to the executeQuery method', queryParams);
 
         let allObservables = [];
-        for (let i = 0; i < savedQueryParams.length; i++) {
-            allObservables.push(<Observable<{jsonQueryResult: Cinchy.JsonQueryResult, callbackState}>> this.executeJsonSavedQuery(savedQueryParams[i].domain, savedQueryParams[i].query, savedQueryParams[i].params, savedQueryParams[i].callbackState));
+        for (let i = 0; i < queryParams.length; i++) {
+            allObservables.push(<Observable<{queryResult: Cinchy.QueryResult, callbackState}>> this.executeQuery(queryParams[i].domain, queryParams[i].query, queryParams[i].params, queryParams[i].callbackState));
 
-            if (i === savedQueryParams.length - 1) {
-                return <Observable<{jsonQueryResult: Cinchy.JsonQueryResult, callbackState}[]>> forkJoin(allObservables);
+            if (i === queryParams.length - 1) {
+                return <Observable<{queryResult: Cinchy.QueryResult, callbackState}[]>> forkJoin(allObservables);
             }
         }
     }
@@ -391,7 +398,7 @@ export namespace Cinchy {
         }
     };
 
-    export class JsonQueryResult {
+    export class QueryResult {
 
         _columnsByName;
         _columnsByIdx;
@@ -511,6 +518,18 @@ export namespace Cinchy {
             if (!isNonNullObject(this._jsonResult) || !isNonZeroLengthArray(this._jsonResult.data))
                 return 0;
             return this._jsonResult.data.length;
+        }
+
+        toObjectArray(): Array<Object> {
+            let result = [];
+            this._jsonResult.data.forEach(row => {
+                let rowObject = {};
+                for (let i = 0; i < row.length; i++) {
+                    rowObject[this._jsonResult.schema[i].columnName] = row[i];
+                }
+                result.push(rowObject);
+            });
+            return result;
         }
 
         moveToNextRow() {

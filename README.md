@@ -101,7 +101,7 @@ Please note that in order for iFrame to properly resize within the Cinchy platfo
 ## Example Usage
 Once your Angular app is properly set-up and logged into Cinchy, you may start executing queries.
 
-Executing a saved query and parsing returned data:
+Executing a query and parsing returned data:
 
 ```typescript
 const data = [];
@@ -111,14 +111,14 @@ const query = 'My Query Name';
 // Values such as connectionid, transactionid, and parameterized variables in the query
 const params = {'@city': 'Toronto'};
 
-this._cinchyService.executeJsonSavedQuery(domain, query, params).subscribe(
+this._cinchyService.executeQuery(domain, query, params).subscribe(
     response => {
-        let jsonQueryResult = response.jsonQueryResult;
+        let queryResult = response.queryResult;
         // Parses the result data
-        while (jsonQueryResult.moveToNextRow()) {
+        while (queryResult.moveToNextRow()) {
             const this_row = {};
-            for (const col of jsonQueryResult.getColNames()){
-                this_row[col] = jsonQueryResult.getCellValue(col);
+            for (const col of queryResult.getColNames()){
+                this_row[col] = queryResult.getCellValue(col);
             }
             data.push(this_row);
         }
@@ -134,21 +134,21 @@ this._cinchyService.executeJsonSavedQuery(domain, query, params).subscribe(
 Executing a custom query and parsing returned data:
 
 ```typescript
-// CQL Query
+// CSQL Query
 const query = 'SELECT * FROM [DOMAIN].[TABLE NAME]';
 
 // Values such as connectionid, transactionid, and parameterized variables in the query
 const params = null;
 
 const data = [];
-this._cinchyService.executeJsonQuery(query, params).subscribe(
+this._cinchyService.executeCsql(query, params).subscribe(
     response => {
-        let jsonQueryResult = response.jsonQueryResult;
+        let queryResult = response.QueryResult;
         // Parses the result data
-        while (jsonQueryResult.moveToNextRow()) {
+        while (queryResult.moveToNextRow()) {
             const this_row = {};
-            for (const col of jsonQueryResult.getColNames()){
-                this_row[col] = jsonQueryResult.getCellValue(col);
+            for (const col of queryResult.getColNames()){
+                this_row[col] = queryResult.getCellValue(col);
             }
             data.push(this_row);
         }
@@ -165,16 +165,16 @@ this._cinchyService.executeJsonQuery(query, params).subscribe(
 ## API
 
 * [CinchyService](#cinchy_service)
-   * [.login()](#login) ⇒ <code>Promise</code>
+   * [.login(redirectUriOverride?)](#login) ⇒ <code>Promise</code>
    * [.getUserIdentity()](#get_user_identity) ⇒ <code>Object</code>
-   * [.executeJsonQuery(query, params, callbackState?)](#execute_json_query) ⇒ <code>Observable</code>
-   * [.executeJsonSavedQuery(domain, query, params, callbackState?)](#execute_json_saved_query) ⇒ <code>Observable</code>
+   * [.executeCsql(query, params, callbackState?)](#execute_csql) ⇒ <code>Observable</code>
+   * [.executeQuery(domain, query, params, callbackState?)](#execute_query) ⇒ <code>Observable</code>
    * [.openConnection(callbackState?)](#open_connection) ⇒ <code>Observable</code>
    * [.closeConnection(connectionId, callbackState?)](#close_connection) ⇒ <code>Observable</code>
    * [.beginTransaction(connectionId, callbackState?)](#begin_transaction) ⇒ <code>Observable</code>
    * [.commitTransaction(connectionId, transactionId, callbackState?)](#commit_transaction) ⇒ <code>Observable</code>
    * [.rollbackTransaction(connectionId, transactionId, callbackState?)](#rollback_transaction) ⇒ <code>Observable</code>
-   * [.executeMultipleJsonSavedQueries(savedQueryParams, callbackState?)](#execute_multiple_json_saved_queries) ⇒ <code>Observable</code>
+   * [.executeQueries(queryParams, callbackState?)](#execute_queries) ⇒ <code>Observable</code>
    * [.getGroupsCurrentUserBelongsTo()](#get_groups_current_user_belongs_to) ⇒ <code>Observable</code>
    * [.getTableEntitlementsById(tableId)](#get_table_entitlements_by_id) ⇒ <code>Observable</code>
    * [.getTableEntitlementsByGuid(tableGuid)](#get_table_entitlements_by_guid) ⇒ <code>Observable</code>
@@ -186,10 +186,14 @@ this._cinchyService.executeJsonQuery(query, params).subscribe(
 
 <a name="login"></a>
 
-### .login() => `Promise`
+### .login(redirectUriOverride?) => `Promise`
 Redirects the page to Cinchy's login page.
 
 The login function returns a promise indicating when the user is logged in.
+
+| Param | Type | Description |
+| --- | --- | --- |
+| redirectUriOverride | <code>string</code> | Optional. A redirect url after successfully logging in. This overrides the redirect url in the initial CinchyConfig. |
 
 ```typescript
 this._cinchyService.login().then( response => {
@@ -206,29 +210,29 @@ Returns the logged in user's identity information.
 
 Example the return object.id is the user's username. object.sub is the user's Cinchy Id.
 
-<a name="execute_json_query"></a>
+<a name="execute_csql"></a>
 
-### .executeJsonQuery(query, params, callbackState?) => `Observable`
-Performs a custom CQL query.
+### .executeCsql(query, params, callbackState?) => `Observable`
+Performs a custom CSQL query.
 
-#### returns `Observable<{jsonQueryResult: CinchyService.JsonQueryResult, callbackState}>`
+#### returns `Observable<{queryResult: CinchyService.QueryResult, callbackState}>`
 
 | Param | Type | Description |
 | --- | --- | --- |
-| query | <code>string</code> | A CQL query as a string |
+| query | <code>string</code> | A CSQL query as a string |
 | params | <code>string</code> | An object with variables associated or needed with the query (connectionid, transactionid, parameterized values) |
 | callbackState? | <code>any</code> | Used for inserting an object of any type to be returned by the function's callbacks |
 
-<a name="execute_json_saved_query"></a>
+<a name="execute_query"></a>
 
-### .executeJsonSavedQuery(domain, query, params, callbackState?) => `Observable`
-Performs a saved query.
+### .executeQuery(domain, query, params, callbackState?) => `Observable`
+Performs a query that's within Cinchy.
 
-#### returns `Observable<{jsonQueryResult: CinchyService.JsonQueryResult, callbackState}>`
+#### returns `Observable<{queryResult: CinchyService.QueryResult, callbackState}>`
 
 | Param | Type | Description |
 | --- | --- | --- |
-| domain | <code>string</code> | The domain in which the saved query is in. |
+| domain | <code>string</code> | The domain in which the query is in. |
 | query | <code>string</code> | The query's name in the domain. |
 | params | <code>string</code> | An object with variables associated or needed with the query (connectionid, transactionid, parameterized values) |
 | callbackState? | <code>any</code> | Used for inserting an object of any type to be returned by the function's callbacks |
@@ -294,16 +298,16 @@ Rollback a transaction.
 | transactionId | <code>string</code> | The transactionid of the transaction you want to rollback. |
 | callbackState? | <code>any</code> | Used for inserting an object of any type to be returned by the function's callbacks |
 
-<a name="execute_multiple_json_saved_queries"></a>
+<a name="execute_queries"></a>
 
-### .executeMultipleJsonSavedQueries(savedQueryParams, callbackState?) => `Observable`
-Executes multiple saved queries.
+### .executeQueries(queryParams, callbackState?) => `Observable`
+Executes multiple queries.
 
-#### returns `Observable<{jsonQueryResult: CinchyService.JsonQueryResult, callbackState}[]>`
+#### returns `Observable<{queryResult: CinchyService.QueryResult, callbackState}[]>`
 
 | Param | Type | Description |
 | --- | --- | --- |
-| savedQueryParams | <code>[object]</code> | An object array. Each object containing variables (domain: string, query: string, params: object, callbackState: any) |
+| queryParams | <code>[object]</code> | An object array. Each object containing variables (domain: string, query: string, params: object, callbackState: any) |
 | callbackState? | <code>any</code> | Used for inserting an object of any type to be returned by the function's callbacks |
 
 <a name="get_groups_current_user_belongs_to"></a>
