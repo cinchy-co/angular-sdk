@@ -183,8 +183,8 @@ this._cinchyService.executeCsql(query, params).subscribe(
    * [.getTableEntitlementsByName(domainName, tableName)](#get_table_entitlements_by_name) ⇒ <code>Observable</code>
 * [Cinchy.QueryResult](#cinchy_query_result) : <code>Object</code>
    * [.convertToObject(key)](#convert_to_object) ⇒ <code>Object</code>
-   * [.getColumns()](#get_columns) ⇒ <code>Array<Object></code>
-   * [.getColNames()](#get_col_names) ⇒ <code>Array<String></code>
+   * [.getColumns()](#get_columns) ⇒ <code>Array&lt;Object&gt;</code>
+   * [.getColNames()](#get_col_names) ⇒ <code>Array&lt;String&gt;</code>
    * [.getColCount()](#get_col_count) ⇒ <code>number</code>
    * [.getRowCount()](#get_row_count) ⇒ <code>number</code>
    * [.moveToNextRow()](#move_to_next_row)
@@ -192,8 +192,8 @@ this._cinchyService.executeCsql(query, params).subscribe(
    * [.getCurrentRowIdx()](#get_current_row_idx) ⇒ <code>number</code>
    * [.resetIterator()](reset_iterator)
    * [.getCellValue(col)](#get_cell_value) ⇒ <code>any</code>
-   * [.getMultiselectCellValue(col)](#get_multiselect_cell_value) ⇒ <code>Array<String></code>
-   * [.toObjectArray()](#to_object_array) ⇒ <code>Array<Object></code>
+   * [.getMultiselectCellValue(col)](#get_multiselect_cell_value) ⇒ <code>Array&lt;String&gt;</code>
+   * [.toObjectArray()](#to_object_array) ⇒ <code>Array&lt;Object&gt;</code>
 
 <a name="cinchy_service"></a>
 
