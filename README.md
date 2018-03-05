@@ -98,6 +98,8 @@ Simply the iframe-resizer .js files into your project's scripts within `.angular
 
 Please note that in order for iFrame to properly resize within the Cinchy platform, the height of your outer most elements (a div container for example) needs to have a style `height` of `auto`.
 
+<a name="example_usage"></a>
+
 ## Example Usage
 Once your Angular app is properly set-up and logged into Cinchy, you may start executing queries.
 
@@ -164,7 +166,7 @@ this._cinchyService.executeCsql(query, params).subscribe(
 
 ## API
 
-* [CinchyService](#cinchy_service)
+* [CinchyService](#cinchy_service) : <code>Service</code>
    * [.login(redirectUriOverride?)](#login) ⇒ <code>Promise</code>
    * [.getUserIdentity()](#get_user_identity) ⇒ <code>Object</code>
    * [.executeCsql(query, params, callbackState?)](#execute_csql) ⇒ <code>Observable</code>
@@ -179,6 +181,19 @@ this._cinchyService.executeCsql(query, params).subscribe(
    * [.getTableEntitlementsById(tableId)](#get_table_entitlements_by_id) ⇒ <code>Observable</code>
    * [.getTableEntitlementsByGuid(tableGuid)](#get_table_entitlements_by_guid) ⇒ <code>Observable</code>
    * [.getTableEntitlementsByName(domainName, tableName)](#get_table_entitlements_by_name) ⇒ <code>Observable</code>
+* [Cinchy.QueryResult](#cinchy_query_result) : <code>Object</code>
+   * [.convertToObject(key)](#convert_to_object) ⇒ <code>Object</code>
+   * [.getColumns()](#get_columns) ⇒ <code>Array<Object></code>
+   * [.getColNames()](#get_col_names) ⇒ <code>Array<String></code>
+   * [.getColCount()](#get_col_count) ⇒ <code>number</code>
+   * [.getRowCount()](#get_row_count) ⇒ <code>number</code>
+   * [.moveToNextRow()](#move_to_next_row)
+   * [.moveToRow(idx)](#move_to_row)
+   * [.getCurrentRowIdx()](#get_current_row_idx) ⇒ <code>number</code>
+   * [.resetIterator()](reset_iterator)
+   * [.getCellValue(col)](#get_cell_value) ⇒ <code>any</code>
+   * [.getMultiselectCellValue(col)](#get_multiselect_cell_value) ⇒ <code>Array<String></code>
+   * [.toObjectArray()](#to_object_array) ⇒ <code>Array<Object></code>
 
 <a name="cinchy_service"></a>
 
@@ -350,6 +365,101 @@ Retrieves a table's entitlements by its domain and name.
 | --- | --- | --- |
 | tableDomain | <code>string</code> | The name of the domain in which the table is in. |
 | tableName | <code>string</code> | The name of the table. |
+
+<a name="cinchy_query_result"></a>
+
+## Cinchy.QueryResult
+
+QueryResult is within the namespace `Cinchy`.
+
+It is the object that gets returned whenever you make a query using CinchyService. The object represents the data returned by a query in table form; providing you with functions to iterate through rows and columns to obtain values in each cell.
+
+Think of the QueryResult as a table with a pointer. We nagivate through the table by moving the pointer to each row (default points to -1). In basic useage, we use .moveToNextRow() or .moveToRow() to move the pointer to the next or another row in the table. While pointing to a row, you may use .getCellValue(col) to obtain a cell's value in the row the pointer is located (see [example usage](#example_usage)).
+
+<a name="convert_to_object"></a>
+
+### .convertToObject(key) => `Object`
+This returns the QueryResult as an object with a given column (must have unique values) as the keys mapping to each row.
+
+For example, if you have a QueryResult dataset with columns "Customer Id", "Age", and "Birthday", you may call .convertToObject('Customer Id') and have it return an object with each row mapped to its Customer Id. This way, you may access a row's values based on a Customer Id.
+
+| Param | Type | Description |
+| --- | --- | --- |
+| key | <code>string</code> | A column name that contains unique values. |
+
+<a name="get_columns"></a>
+
+### .getColumns() => `Array<Object>`
+Returns an array of objects definining each column by their name and field type.
+
+The array of objects returned are defined as Array<{columnName: string, type: string}> where `columnName` is the name of the column and `type` is the data type of the values in the column (e.g. "Int32", "String", "Byte[]", etc.)
+
+<a name="get_col_names"></a>
+
+### .getColNames() => `Array<String>`
+Returns an array of column names as strings.
+
+<a name="get_col_count"></a>
+
+### .getColCount() => `number`
+Returns the number of columns.
+
+<a name="get_row_count"></a>
+
+### .getRowCount() => `number`
+Returns the number of rows.
+
+<a name="move_to_next_row"></a>
+
+### .moveToNextRow()
+Moves the row pointer to the next row. 
+
+<a name="move_to_row"></a>
+
+### .moveToRow(idx)
+Moves the row pointer to the given row index.
+
+| Param | Type | Description |
+| --- | --- | --- |
+| idx | <code>number</code> | The index of the row you want the row pointer to move to. |
+
+<a name="get_current_row_idx"></a>
+
+### .getCurrentRowIdx() => `number`
+Returns the index of the current row the row pointer is at.
+
+<a name="reset_iterator"></a>
+
+### .resetIterator()
+Moves the row pointer back to index -1. 
+
+<a name="get_cell_value"></a>
+
+### .getCellValue(col) => `any`
+Returns the cell value of the specified column on the current row.
+
+| Param | Type | Description |
+| --- | --- | --- |
+| col | <code>string</code> | The name of a column. |
+
+<a name="get_multiselect_cell_value"></a>
+
+### .getMultiselectCellValue(col) => `Array<String>`
+Returns an array of each value in a multiselect field.
+
+When you use .getCellValue(col) on a multiselect column, it returns a string with commas separating each selected value. Using .getMultiselectCellValue(col) allows you to recieve an array instead. 
+
+| Param | Type | Description |
+| --- | --- | --- |
+| col | <code>string</code> | The name of the multiselect column. |
+
+<a name="to_object_array"></a>
+
+### .toObjectArray() => `Array<Object>`
+Returns an array of objects representing each row in the dataset.
+
+Each key in the object is a column name and maps it to the corresponding cell value.
+This is useful if you want to use a Array.prototype.map() function on each row.
 
 ## More Documentaion
 See [here](http://support.cinchy.co/) for more information.
