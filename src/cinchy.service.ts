@@ -471,7 +471,7 @@ export namespace Cinchy {
             return a;
         };
 
-        getCellValue(col: string): any {
+        getCellValue(col): any {
             if (this._currentRowIdx >= this.getRowCount())
                 throw new CinchyException('Unable to retrieve column value as the iterator is out of the bounds of the result set. Current row index is ' + this._currentRowIdx + ', while the total row count is ' + this.getRowCount());
             let colIdx = this.validateAndConvertColumnReferenceToIdx(col);
