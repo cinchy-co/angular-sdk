@@ -602,9 +602,10 @@ function isFunction(obj: any): boolean {
 }
 
 function isNonNullOrWhitespaceString(text: string): boolean {
+    if (typeof text !== 'string') return false;
     let re = /\s/gi;
     let result = text.replace(re, '');
-   return (typeof text === 'string' && result !== '');
+   return (result !== '');
 }
 
 function isNonNullObject(obj: any): boolean {
