@@ -440,7 +440,7 @@ Returns the cell value of the specified column on the current row.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| col | <code>string</code> | The name of a column. |
+| col | <code>string | number</code> | The name of a column or the index of a column. |
 
 <a name="get_multiselect_cell_value"></a>
 
