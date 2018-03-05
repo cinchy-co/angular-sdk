@@ -134,7 +134,7 @@ export class CinchyService {
     openConnection(callbackState?): Observable<{connectionId: string, callbackState}> {
         let errorMsg = 'Failed to open connection';
         return <Observable<{connectionId: string, callbackState}>> this._httpClient.get(this.cinchyRootUrl + '/API/OpenConnection', { responseType: 'text' } )
-            .map(data => {
+            .map(data => { 
                     let connectionId = data;
                     let returnVal = { connectionId: connectionId, callbackState: callbackState};
                     return { connectionId: connectionId, callbackState: callbackState};
@@ -231,7 +231,7 @@ export class CinchyService {
 
         return <Observable<{connectionId: string, transactionId: string, callbackState}>> this._httpClient.post(this.cinchyRootUrl + '/API/RollbackTransaction',
             form_data,
-            {
+            { 
                 headers: new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded'),
                 responseType: 'text'
             }
@@ -378,7 +378,7 @@ export class CinchyService {
         return data && filterjoin(keys(data).map(function (key) {
             return nest(key, data[key]);
         }));
-    };
+    }
 }
 
 export namespace Cinchy {
@@ -396,7 +396,7 @@ export namespace Cinchy {
         logError(): void {
             console.error(this.message, this.data);
         }
-    };
+    }
 
     export class QueryResult {
 
@@ -412,7 +412,7 @@ export namespace Cinchy {
         }
 
 
-        convertToObject(key) {
+        convertToObject(key: string): Object {
             let colCount = this.getColCount();
             if (colCount < 2)
                 throw new CinchyException('Result sets can only be convered to objects when they have at least two columns. The column count is ' + colCount, { jsonResult: this._jsonResult });
@@ -471,7 +471,7 @@ export namespace Cinchy {
             return a;
         };
 
-        getCellValue(col) {
+        getCellValue(col: string): any {
             if (this._currentRowIdx >= this.getRowCount())
                 throw new CinchyException('Unable to retrieve column value as the iterator is out of the bounds of the result set. Current row index is ' + this._currentRowIdx + ', while the total row count is ' + this.getRowCount());
             let colIdx = this.validateAndConvertColumnReferenceToIdx(col);
@@ -481,23 +481,23 @@ export namespace Cinchy {
             return rowDataArray[colIdx];
         }
 
-        getColCount() {
+        getColCount(): number {
             if (!isNonNullObject(this._jsonResult) || !isNonZeroLengthArray(this._jsonResult.schema))
                 return 0;
             return this._jsonResult.schema.length;
         }
 
-        getColNames() {
+        getColNames(): Array<string> {
             return this._columnsByIdx.map(function (obj) {
                 return obj.columnName;
             });
         }
 
-        getCurrentRowIdx() {
+        getCurrentRowIdx(): number {
             return this._currentRowIdx;
         }
 
-        getColumns() {
+        getColumns(): Array<{columnName: string, type: string}> {
             // creates a cloned version of the column list
             return this._columnsByIdx.map(function (obj) {
                 return {
@@ -507,14 +507,14 @@ export namespace Cinchy {
             });
         }
 
-        getMultiSelectCellValue(col) {
+        getMultiSelectCellValue(col: string): Array<string> {
             let textValue = this.getCellValue(col);
             if (!isNonNullOrWhitespaceString(textValue))
                 return null;
             return this.csvToArray(textValue);
         }
 
-        getRowCount() {
+        getRowCount(): number {
             if (!isNonNullObject(this._jsonResult) || !isNonZeroLengthArray(this._jsonResult.data))
                 return 0;
             return this._jsonResult.data.length;
@@ -541,13 +541,13 @@ export namespace Cinchy {
             return this._currentRowIdx < this.getRowCount();
         }
 
-        moveToRow(idx) {
+        moveToRow(idx: number) {
             if (idx < 0 || idx >= this.getRowCount())
                 throw new CinchyException('Failed to move to row ' + idx + '. The specified index is out of the bounds of the result set which contains ' + this.getRowCount() + ' records');
             this._currentRowIdx = idx;
         }
 
-        processColumnHeaders() {
+        private processColumnHeaders() {
             this._columnsByName = {};
             this._columnsByIdx = [];
             if (!isNonNullObject(this._jsonResult) || !isNonZeroLengthArray(this._jsonResult.schema))
@@ -659,3 +659,13 @@ export class CinchyAuthInterceptor implements HttpInterceptor {
         return next.handle(req);
     }
 }
+
+declare global {
+    interface String {
+        killWhiteSpace(): string;
+    }
+}
+
+String.prototype.killWhiteSpace = function () {
+    return this.replace(/\s/g, '');
+};
