@@ -646,6 +646,9 @@ export class CinchyAuthInterceptor implements HttpInterceptor {
     }
 
     public intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+        if (!isNonNullOrWhitespaceString(this._cinchyGlobalConfig.cinchyRootUrl))
+            return next.handle(req);
+
         let url = req.url.toLowerCase();
 
         if (url.startsWith(this._cinchyGlobalConfig.cinchyRootUrl.toLowerCase())) {
