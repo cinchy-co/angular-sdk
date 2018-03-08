@@ -26,6 +26,7 @@
     "@cinchy-co/angular-sdk": "^1.0.3",
     "core-js": "^2.4.1",
     "rxjs": "^5.5.6",
+    "ssri": "^5.2.4",
     "zone.js": "^0.8.19"
   },
   "devDependencies": {
