@@ -168,6 +168,7 @@ this._cinchyService.executeCsql(query, params).subscribe(
 
 * [CinchyService](#cinchy_service) : <code>Service</code>
    * [.login(redirectUriOverride?)](#login) ⇒ <code>Promise</code>
+   * [.logout()](#logout) ⇒ <code>Void</code>
    * [.getUserIdentity()](#get_user_identity) ⇒ <code>Object</code>
    * [.executeCsql(query, params, callbackState?)](#execute_csql) ⇒ <code>Observable</code>
    * [.executeQuery(domain, query, params, callbackState?)](#execute_query) ⇒ <code>Observable</code>
@@ -217,6 +218,11 @@ this._cinchyService.login().then( response => {
     console.log('Login Failed');  
 });
 ```
+
+<a name="logout"></a>
+
+### .logout() => `Void`
+Logs the user out of the session.
 
 <a name="get_user_identity"></a>
 
