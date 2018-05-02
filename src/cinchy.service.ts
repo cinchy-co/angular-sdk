@@ -45,6 +45,10 @@ export class CinchyService {
         return this._oAuthService.loadDiscoveryDocumentAndLogin();
     }
 
+    logout() {
+        this._oAuthService.logOut();
+    }
+
     getUserIdentity(): object {
         return this._oAuthService.getIdentityClaims();
     }
