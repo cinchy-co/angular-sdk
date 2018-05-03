@@ -170,6 +170,7 @@ this._cinchyService.executeCsql(query, params).subscribe(
    * [.login(redirectUriOverride?)](#login) ⇒ <code>Promise</code>
    * [.logout()](#logout) ⇒ <code>Void</code>
    * [.getUserIdentity()](#get_user_identity) ⇒ <code>Object</code>
+   * [.checkSessionValidity()](#check_session_validity) ⇒ <code>Observable</code>
    * [.executeCsql(query, params, callbackState?)](#execute_csql) ⇒ <code>Observable</code>
    * [.executeQuery(domain, query, params, callbackState?)](#execute_query) ⇒ <code>Observable</code>
    * [.openConnection(callbackState?)](#open_connection) ⇒ <code>Observable</code>
@@ -230,6 +231,26 @@ Logs the user out of the session.
 Returns the logged in user's identity information.
 
 Example the return object.id is the user's username. object.sub is the user's Cinchy Id.
+
+<a name="check_session_validity"></a>
+
+### .checkSessionValidity() => `Observable`
+Checks whether or not the access token used to query Cinchy is still valid.
+If invalid, the application will be unable to call queries on Cinchy.
+
+#### returns `Observable<{accessTokenIsValid: boolean}>`
+
+Example Usage
+```typescript
+this._cinchyService.checkSessionValidity().subscribe(
+    success => {
+        console.log('Session is valid!');
+    },
+    error => {
+        console.log('Session timed out!');
+    }
+);
+```
 
 <a name="execute_csql"></a>
 

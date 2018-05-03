@@ -53,6 +53,34 @@ export class CinchyService {
         return this._oAuthService.getIdentityClaims();
     }
 
+    checkSessionValidity(): Observable<{accessTokenIsValid: boolean}> {
+        let form_data = null;
+        const url = this._cinchyGlobalConfig.authority + '/connect/accesstokenvalidation?token=<token>';
+        const params = {
+            token: this._oAuthStorge.getItem('access_token')
+        };
+        form_data = this.getFormUrlEncodedData(params);
+        return <Observable <{accessTokenIsValid: boolean}>> this._httpClient.post(url,
+            form_data,
+            {
+                headers: new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded'),
+                observe: 'response'
+            }
+            ).map( data => {
+                if (data.status === 200)
+                    return {accessTokenIsValid: true};
+                else
+                    return {accessTokenIsValid: false};
+            }).catch ( error => {
+                let cinchyEx = new Cinchy.CinchyException('Session check failed, token is not valid', {
+                    status: error.status,
+                    statusText: error.statusText,
+                    response: error.responseJSON
+                });
+                throw Observable.throw({cinchyException: cinchyEx});
+            });
+    }
+
     private _executeQuery(apiUrl: string, params: object, errorMsg: string, callbackState): Observable<{queryResult: Cinchy.QueryResult, callbackState}> {
         let form_data = null;
         if (!isNonNullObject(params)) {
