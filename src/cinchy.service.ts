@@ -47,6 +47,10 @@ export class CinchyService {
         this._oAuthService.logOut();
     }
 
+    getUserIdentity(): object {
+        return this._oAuthService.getIdentityClaims();
+    }
+
     checkIfSessionValid(): Observable<{accessTokenIsValid: boolean}> {
         let form_data = null;
         const url = this._cinchyGlobalConfig.authority + '/connect/accesstokenvalidation?token=<token>';
