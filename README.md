@@ -170,6 +170,7 @@ this._cinchyService.executeCsql(query, params).subscribe(
    * [.login(redirectUriOverride?)](#login) ⇒ <code>Promise</code>
    * [.logout()](#logout) ⇒ <code>Void</code>
    * [.getUserIdentity()](#get_user_identity) ⇒ <code>Object</code>
+   * [.getAccessToken()](#get_access_token) ⇒ <code>string</code>
    * [.checkSessionValidity()](#check_session_validity) ⇒ <code>Observable</code>
    * [.executeCsql(query, params, callbackState?)](#execute_csql) ⇒ <code>Observable</code>
    * [.executeQuery(domain, query, params, callbackState?)](#execute_query) ⇒ <code>Observable</code>
@@ -231,6 +232,11 @@ Logs the user out of the session.
 Returns the logged in user's identity information.
 
 Example the return object.id is the user's username. object.sub is the user's Cinchy Id.
+
+<a name="get_access_token"></a>
+
+### .getAccessToken() => `string`
+Returns the access token for the authenticated user.
 
 <a name="check_session_validity"></a>
 
