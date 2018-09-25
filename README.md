@@ -169,8 +169,8 @@ this._cinchyService.executeCsql(query, params).subscribe(
 * [CinchyService](#cinchy_service) : <code>Service</code>
    * [.login(redirectUriOverride?)](#login) ⇒ <code>Promise</code>
    * [.logout()](#logout) ⇒ <code>Void</code>
-   * [.getUserIdentity()](#get_user_identity) ⇒ <code>Object</code>
-   * [.getAccessToken()](#get_access_token) ⇒ <code>string</code>
+   * [.getUserIdentity()](#get_user_identity) ⇒ <code>Observable</code>
+   * [.getAccessToken()](#get_access_token) ⇒ <code>Observable</code>
    * [.checkSessionValidity()](#check_session_validity) ⇒ <code>Observable</code>
    * [.executeCsql(query, params, callbackState?)](#execute_csql) ⇒ <code>Observable</code>
    * [.executeQuery(domain, query, params, callbackState?)](#execute_query) ⇒ <code>Observable</code>
@@ -228,15 +228,15 @@ Logs the user out of the session.
 
 <a name="get_user_identity"></a>
 
-### .getUserIdentity() => `object`
-Returns the logged in user's identity information.
+### .getUserIdentity() => `Observable`
+Returns the logged in user's identity information when it is available.
 
-Example the return object.id is the user's username. object.sub is the user's Cinchy Id.
+Example: the return object.id is the user's username. object.sub is the user's Cinchy Id.
 
 <a name="get_access_token"></a>
 
-### .getAccessToken() => `string`
-Returns the access token for the authenticated user.
+### .getAccessToken() => `Observable`
+Returns the access token (string) for the authenticated user when it is available.
 
 <a name="check_session_validity"></a>
 

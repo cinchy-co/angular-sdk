@@ -6,17 +6,21 @@ import { PACKAGE_ROOT_URL } from '@angular/core/src/application_tokens';
 import { OAuthService, JwksValidationHandler, AuthConfig, OAuthStorage, OAuthResourceServerErrorHandler, OAuthModuleConfig, ReceivedTokens } from 'angular-oauth2-oidc';
 import { CinchyConfig } from './cinchy.config';
 import { CinchyGlobalConfig } from './cinchy.global.config';
-import {throwError as observableThrowError,  Observable, forkJoin } from 'rxjs';
+import {throwError as observableThrowError,  Observable, forkJoin, Subject, ReplaySubject } from 'rxjs';
 import { map, filter, catchError } from 'rxjs/operators';
 
 @Injectable()
 export class CinchyService {
 
     private cinchyRootUrl;
+    private accessTokenSubject: Subject<string>;
+    private userIdentitySubject: Subject<object>;
 
     constructor(private _httpClient: HttpClient, private _oAuthStorge: OAuthStorage, private _oAuthService: OAuthService, private _cinchyGlobalConfig: CinchyGlobalConfig, @Inject(CinchyConfig) private config: CinchyConfig) {
         this._cinchyGlobalConfig.setUserValues(this.config);
         this.cinchyRootUrl = this.config.cinchyRootUrl;
+        this.accessTokenSubject = new ReplaySubject<string>();
+        this.userIdentitySubject = new ReplaySubject<object>();
     }
 
     login(redirectUriOverride?: string): Promise<Boolean> {
@@ -40,19 +44,30 @@ export class CinchyService {
         this._oAuthService.configure(authConfig);
         this._oAuthService.tokenValidationHandler = new JwksValidationHandler();
 
-        return this._oAuthService.loadDiscoveryDocumentAndLogin();
+        let that = this;
+        return new Promise<boolean>(function(resolve, reject) {
+            that._oAuthService.loadDiscoveryDocumentAndLogin()
+            .then(response => {
+                that.accessTokenSubject.next(that._oAuthService.getAccessToken());
+                that.userIdentitySubject.next(that._oAuthService.getIdentityClaims());
+                resolve(response);
+            })
+            .catch(error => {
+                reject(error);
+            });
+        });
     }
 
     logout() {
         this._oAuthService.logOut();
     }
 
-    getUserIdentity(): object {
-        return this._oAuthService.getIdentityClaims();
+    getAccessToken(): Observable<string> {
+        return this.accessTokenSubject.asObservable();
     }
 
-    getAccessToken(): string {
-        return this._oAuthService.getAccessToken();
+    getUserIdentity(): Observable<object> {
+        return this.userIdentitySubject.asObservable();
     }
 
     checkIfSessionValid(): Observable<{accessTokenIsValid: boolean}> {
