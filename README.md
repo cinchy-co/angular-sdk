@@ -229,14 +229,16 @@ Logs the user out of the session.
 <a name="get_user_identity"></a>
 
 ### .getUserIdentity() => `Observable`
-Returns the logged in user's identity information when it is available.
+Retrieves the logged in user's identity information when it is available.
 
 Example: the return object.id is the user's username. object.sub is the user's Cinchy Id.
 
 <a name="get_access_token"></a>
 
 ### .getAccessToken() => `Observable`
-Returns the access token (string) for the authenticated user when it is available.
+Retrieves the access token (string) for the authenticated user when it is available.
+
+#### returns `Observable<string>`
 
 <a name="check_session_validity"></a>
 
