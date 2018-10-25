@@ -27,6 +27,8 @@ export class AppComponent {
   currentAnswer = '';
   currentUserCanAnswer: boolean;
 
+  userIdentity: object;
+
   constructor(private _cinchyService: CinchyService, private _domSanitizer: DomSanitizer) {
     this._cinchyService.login().then( response => {
       console.log(response);
@@ -42,7 +44,11 @@ export class AppComponent {
       this.logGetGroupsCurrentUserBelongsTo();
 
       // Logs the current user's information
-      console.log(this._cinchyService.getUserIdentity());
+      this._cinchyService.getUserIdentity().subscribe(
+        userIdentityResp => {
+          this.userIdentity = userIdentityResp;
+        }
+      );
 
     }).catch( error => {
       console.log(error);
@@ -65,7 +71,7 @@ export class AppComponent {
       }
     ];
 
-    this._cinchyService.executeQueries(queriesToExecute)
+    /*this._cinchyService.executeQueries(queriesToExecute)
       .subscribe(
         response => {
           this.loadQuestions(response[0]);
@@ -74,6 +80,24 @@ export class AppComponent {
         error => {
           console.log(error);
         }
+      );*/
+      this._cinchyService.executeQuery(queriesToExecute[0].domain, queriesToExecute[0].query, queriesToExecute[0].params)
+        .subscribe(
+          response => {
+            this.loadQuestions(response);
+          },
+          error => {
+            console.log(error);
+          }
+        );
+      this._cinchyService.executeQuery(queriesToExecute[1].domain, queriesToExecute[1].query, queriesToExecute[1].params)
+        .subscribe(
+          response => {
+            this.loadLeaderboard(response);
+          },
+          error => {
+            console.log(error);
+          }
       );
   }
 
@@ -181,7 +205,7 @@ export class AppComponent {
   submitAnswer(questionIndex, questionId) {
     const domain = 'SDK Demo';
     const query = 'Get User Id';
-    const params = {'@username': this._cinchyService.getUserIdentity()['id']};
+    const params = {'@username': this.userIdentity['id']};
 
     const data = [];
 
