@@ -1,6 +1,6 @@
 {
   "name": "@cinchy-co/angular-sdk",
-  "version": "1.0.11",
+  "version": "2.0.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/cinchy-co/angular-sdk"
@@ -24,11 +24,11 @@
   "jsnext:main": "angular-sdk.js",
   "typings": "angular-sdk.d.ts",
   "peerDependencies": {
-    "@angular/core": "^4.0.0",
+    "@angular/core": "^6.0.0",
     "zone.js": "^0.8.4"
   },
   "dependencies": {
-    "angular-oauth2-oidc": "^3.1.4",
+    "angular-oauth2-oidc": "^5.0.2",
     "iframe-resizer": "^3.6.1",
     "rxjs-compat": "^6.2.0"
   }
