@@ -21,6 +21,11 @@ export class CinchyService {
         this.cinchyRootUrl = this.config.cinchyRootUrl;
         this.accessTokenSubject = new ReplaySubject<string>();
         this.userIdentitySubject = new ReplaySubject<object>();
+
+        if (this._oAuthService.hasValidIdToken() && this._oAuthService.hasValidAccessToken()) {
+            this.emitAccessToken();
+            this.emitIdentityClaims();
+        }
     }
 
     login(redirectUriOverride?: string): Promise<Boolean> {
@@ -45,12 +50,18 @@ export class CinchyService {
         this._oAuthService.tokenValidationHandler = new JwksValidationHandler();
 
         let that = this;
+        let emitInfo = true;
+        if (this._oAuthService.hasValidIdToken() && this._oAuthService.hasValidAccessToken()) {
+            emitInfo = false;
+        }
         return new Promise<boolean>(function(resolve, reject) {
             that._oAuthService.loadDiscoveryDocumentAndLogin()
             .then(response => {
-                that.accessTokenSubject.next(that._oAuthService.getAccessToken());
-                that.userIdentitySubject.next(that._oAuthService.getIdentityClaims());
                 resolve(response);
+                if (emitInfo) {
+                    that.emitAccessToken();
+                    that.emitIdentityClaims();
+                }
             })
             .catch(error => {
                 reject(error);
@@ -68,6 +79,14 @@ export class CinchyService {
 
     getUserIdentity(): Observable<object> {
         return this.userIdentitySubject.asObservable();
+    }
+
+    private emitAccessToken() {
+        this.accessTokenSubject.next(this._oAuthService.getAccessToken());
+    }
+
+    private emitIdentityClaims() {
+        this.userIdentitySubject.next(this._oAuthService.getIdentityClaims());
     }
 
     checkIfSessionValid(): Observable<{accessTokenIsValid: boolean}> {
