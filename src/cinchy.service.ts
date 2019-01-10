@@ -22,7 +22,7 @@ export class CinchyService {
         this.accessTokenSubject = new ReplaySubject<string>();
         this.userIdentitySubject = new ReplaySubject<object>();
 
-        if (this._oAuthService.hasValidIdToken() && this._oAuthService.hasValidAccessToken()) {
+        if (this._oAuthService.hasValidAccessToken()) {
             this.emitAccessToken();
             this.emitIdentityClaims();
         }
@@ -51,7 +51,7 @@ export class CinchyService {
 
         let that = this;
         let emitInfo = true;
-        if (this._oAuthService.hasValidIdToken() && this._oAuthService.hasValidAccessToken()) {
+        if (this._oAuthService.hasValidAccessToken()) {
             emitInfo = false;
         }
         return new Promise<boolean>(function(resolve, reject) {
