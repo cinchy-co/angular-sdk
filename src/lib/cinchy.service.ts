@@ -6,25 +6,31 @@ import { PACKAGE_ROOT_URL } from '@angular/core/src/application_tokens';
 import { OAuthService, JwksValidationHandler, AuthConfig, OAuthStorage, OAuthResourceServerErrorHandler, OAuthModuleConfig, ReceivedTokens } from 'angular-oauth2-oidc';
 import { CinchyConfig } from './cinchy.config';
 import { CinchyGlobalConfig } from './cinchy.global.config';
-import {throwError as observableThrowError,  Observable, forkJoin, Subject, ReplaySubject } from 'rxjs';
+import { throwError as observableThrowError,  Observable, forkJoin, Subject, ReplaySubject, of } from 'rxjs';
 import { map, filter, catchError } from 'rxjs/operators';
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class CinchyService {
 
     private cinchyRootUrl;
     private accessTokenSubject: Subject<string>;
     private userIdentitySubject: Subject<object>;
-
     constructor(private _httpClient: HttpClient, private _oAuthStorge: OAuthStorage, private _oAuthService: OAuthService, private _cinchyGlobalConfig: CinchyGlobalConfig, @Inject(CinchyConfig) private config: CinchyConfig) {
         this._cinchyGlobalConfig.setUserValues(this.config);
         this.cinchyRootUrl = this.config.cinchyRootUrl;
         this.accessTokenSubject = new ReplaySubject<string>();
         this.userIdentitySubject = new ReplaySubject<object>();
 
+        // restart automatic silent refresh if the user refreshed the page while still logged in
         if (this._oAuthService.hasValidAccessToken()) {
             this.emitAccessToken();
             this.emitIdentityClaims();
+            if (this._oAuthService.hasValidIdToken() && this._cinchyGlobalConfig.silentRefreshEnabled) {
+                this._oAuthService.setupAutomaticSilentRefresh();
+                this.refreshTokenOnLoadIfNeeded();
+            }
         }
     }
 
@@ -43,11 +49,19 @@ export class CinchyService {
             scope: this._cinchyGlobalConfig.scope,
             responseType: this._cinchyGlobalConfig.responseType,
             requireHttps: this._cinchyGlobalConfig.requireHttps,
-            sessionChecksEnabled: true
+            sessionChecksEnabled: this._cinchyGlobalConfig.sessionChecksEnabled,
+            postLogoutRedirectUri: this._cinchyGlobalConfig.logoutRedirectUri,
+            useIdTokenHintForSilentRefresh: this._cinchyGlobalConfig.useIdTokenHintForSilentRefresh,
+            silentRefreshRedirectUri: this._cinchyGlobalConfig.silentRefreshRedirectUri
         };
 
         this._oAuthService.configure(authConfig);
         this._oAuthService.tokenValidationHandler = new JwksValidationHandler();
+
+        if (!this._oAuthService.hasValidIdToken() || !this._oAuthService.hasValidAccessToken()) {
+            if (this._cinchyGlobalConfig.silentRefreshEnabled)
+                this._oAuthService.setupAutomaticSilentRefresh();
+        }
 
         let that = this;
         let emitInfo = true;
@@ -69,6 +83,17 @@ export class CinchyService {
         });
     }
 
+    private async refreshTokenOnLoadIfNeeded(): Promise<void> {
+        const expiration = this._oAuthService.getAccessTokenExpiration();
+        const storedAt = parseInt(sessionStorage.getItem('access_token_stored_at'), 10);
+        const timeout = (expiration - storedAt) * this._oAuthService.timeoutFactor;
+        const refreshAt = timeout + storedAt;
+        const now = Math.round(new Date().getTime() / 1000);
+        if (now >= refreshAt) {
+            await this._oAuthService.silentRefresh();
+        }
+    }
+
     logout() {
         this._oAuthService.logOut();
     }
@@ -86,24 +111,39 @@ export class CinchyService {
     }
 
     private emitIdentityClaims() {
-        this.userIdentitySubject.next(this._oAuthService.getIdentityClaims());
+        const url = this._cinchyGlobalConfig.authority + '/connect/userinfo';
+        let reqHeaders = new HttpHeaders();
+        reqHeaders = reqHeaders.append('Authorization', 'Bearer ' + this._oAuthService.getAccessToken());
+        return this._httpClient.get(url,
+            {
+                headers: reqHeaders,
+                observe: 'response'
+            }).subscribe(data => {
+                const identityClaims = this._oAuthService.getIdentityClaims();
+                identityClaims['profile'] = data.body['profile'] ? data.body['profile'] : null;
+                identityClaims['email'] = data.body['email'] ? data.body['email'] : null;
+                identityClaims['id'] = data.body['id'] ? data.body['id'] : null;
+                identityClaims['role'] = data.body['role'] ? data.body['role'] : null;
+                this.userIdentitySubject.next(identityClaims);
+            });
     }
 
     checkIfSessionValid(): Observable<{accessTokenIsValid: boolean}> {
-        let form_data = null;
-        const url = this._cinchyGlobalConfig.authority + '/connect/accesstokenvalidation?token=<token>';
-        const params = {
-            token: this._oAuthStorge.getItem('access_token')
-        };
-        form_data = this.getFormUrlEncodedData(params);
+        /* let form_data = null;
+        const url = this._cinchyGlobalConfig.authority + '/connect/introspect';
+        let reqHeaders = new HttpHeaders();
+        reqHeaders = reqHeaders.append('Content-Type', 'application/x-www-form-urlencoded');
+        reqHeaders = reqHeaders.append('Accept', 'application/json');
+        reqHeaders = reqHeaders.append('Authorization', 'Basic ' + btoa('adonet_api:scopeSecret'));
+        form_data = 'token=' + this._oAuthService.getAccessToken();
         return <Observable <{accessTokenIsValid: boolean}>> this._httpClient.post(url,
             form_data,
             {
-                headers: new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded'),
+                headers: reqHeaders,
                 observe: 'response'
             }).pipe(
                 map( data => {
-                    if (data['status'] === 200)
+                    if (data['active'])
                         return {accessTokenIsValid: true};
                     else
                         return {accessTokenIsValid: false};
@@ -116,7 +156,14 @@ export class CinchyService {
                     });
                     throw observableThrowError({cinchyException: cinchyEx});
                 })
-            );
+            );*/
+        return <Observable <{accessTokenIsValid: boolean}>> this._httpClient.get(this.cinchyRootUrl + '/Account/GetGroupsCurrentUserBelongsTo',
+        { headers: new HttpHeaders().set('Content-Type', 'application/json; charset=utf-8')}).pipe(
+            map(data => {
+                return {accessTokenIsValid: true};
+            }),
+            catchError(val => of({accessTokenIsValid: false}))
+        );
     }
 
     private _executeQuery(apiUrl: string, params: object, errorMsg: string, callbackState): Observable<{queryResult: Cinchy.QueryResult, callbackState}> {
@@ -735,14 +782,13 @@ export class CinchyAuthInterceptor implements HttpInterceptor {
         let url = req.url.toLowerCase();
 
         if (url.startsWith(this._cinchyGlobalConfig.cinchyRootUrl.toLowerCase())) {
-            let token = this._oAuthStorage.getItem('access_token');
-            let header = 'Bearer ' + token;
-
-            let headers = req.headers.set('Authorization', header);
-
-            req = req.clone({ headers });
+            if (!req.headers.has('Authorization')) {
+                let token = this._oAuthStorage.getItem('access_token');
+                let header = 'Bearer ' + token;
+                let headers = req.headers.set('Authorization', header);
+                req = req.clone({ headers });
+            }
         }
-
         return next.handle(req);
     }
 }

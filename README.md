@@ -8,6 +8,9 @@ To install this library, go to your angular project directory and use:
 $ npm install @cinchy-co/angular-sdk --save
 ```
 
+Please use version 2.x.x and 3.x.x if you are using **Angular 6** or **Angular 7** and **Cinchy v2.x.x**.
+If you are using **Angular 5** and a lower version of Cinchy, use version 1.x.x or lower.
+
 ## Importing the Cinchy Library
 
 From your Angular `AppModule`:
@@ -49,13 +52,22 @@ import { CinchyService, CinchyConfig } from '@cinchy-co/angular-sdk';
 // Create a config (as a class of CinchyConfig) to be loaded into CinchyService
 export const MyCinchyAppConfig: CinchyConfig = {
   // The root url of your Cinchy instance
-  cinchyRootUrl: 'http://qa1-app1.cinchy.co',
+  cinchyRootUrl: 'http://my.cinchy.instance.co',
   // The url of your Cinchy IdentityServer
-  authority: 'http://qa1-sso.cinchy.co/CinchySSO/identity',
+  authority: 'http://my.cinchy.instance.co/cinchyssocore',
   // The redirect url after logging in
   redirectUri: 'http://my-app-url/',
-  // The id of your applet
-  clientId: 'my-applet-id'
+  // The client id for your applet
+  clientId: 'my-applet-id',
+  // (Optional) The redirect url after you logout
+  logoutRedirectUri: 'http://localhost:3000/',
+  // (Optional) The requested scopes for the applet (must be permitted for the client)
+  // You must have openid and id requested
+  scope: 'openid id email profile roles',
+  // (Optional) Enable silent refresh
+  silentRefreshEnabled: true,
+  // (Optional) (Mandatory if silentRefreshEnabled = true) The silent refresh url
+  silentRefreshRedirectUri: 'http://localhost:3000/silent-refresh.html'
 };
 
 @Component({
@@ -80,6 +92,41 @@ export class AppComponent {
     });
   }
 ```
+
+## Enabling Silent Refresh
+Silent refresh automatically refreshes your access token every 75% of your token's lifetime.
+
+In order to use silent refresh, you must:
+
+1). Set the silentRefreshEnabled property to true in your CinchyConfig object.
+
+2). Add a silent-refresh.html file into your Angular project. This can be found within the /src/lib/ folder in the repo or copy & paste this:
+
+```html
+<html>
+    <body>
+        <script>
+            parent.postMessage(location.hash, location.origin);
+        </script>
+    </body>
+</html>
+```
+
+3). Within your angular.json file, specify the silent-refresh.html path and file within the "assets" property:
+
+```json
+...
+"assets": [
+    "src/favicon.ico",
+    "src/assets",
+    "src/silent-refresh.html"
+],
+...
+```
+
+Silent refresh works by using a hidden iframe to access a url that contains the silent-refresh.html page. This iframe makes a request to the server to retrieve a new access token.
+
+4). Add the silent-refresh url into the "Permitted Login Redirect URLs" field of the "Integrated Clients" table within Cinchy (eg. http://localhost:3000/silent-refresh.html).
 
 ## Allowing App for Embedment
 Apps can be embedded and launched within the Cinchy platfrom.

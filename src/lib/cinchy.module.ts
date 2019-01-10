@@ -1,6 +1,6 @@
 import { NgModule, ModuleWithProviders } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { OAuthModule, OAuthService, AuthConfig } from  'angular-oauth2-oidc';
+import { OAuthModule, OAuthService, AuthConfig } from 'angular-oauth2-oidc';
 import { HttpClientModule, HttpClient, HTTP_INTERCEPTORS } from '@angular/common/http';
 
 import { CinchyService, CinchyAuthInterceptor } from './cinchy.service';
@@ -29,6 +29,6 @@ export class CinchyModule {
             useClass: CinchyAuthInterceptor,
             multi: true
           }]
-      }
+      };
   }
 }
