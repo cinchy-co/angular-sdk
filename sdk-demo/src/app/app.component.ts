@@ -6,8 +6,8 @@ import { IAnswer, Answer } from './Answer';
 import { DomSanitizer } from '@angular/platform-browser';
 
 export const MyCinchyAppConfig: CinchyConfig = {
-  cinchyRootUrl: 'http://qa1-app1.cinchy.co',
-  authority: 'http://qa1-sso.cinchy.co/CinchySSO/identity',
+  cinchyRootUrl: 'http://localhost',
+  authority: 'http://localhost:8081',
   redirectUri: 'http://localhost:3000/',
   clientId: 'alvin-rest-sample'
 };
