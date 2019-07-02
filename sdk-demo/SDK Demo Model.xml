@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-16"?>
+<Model xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Answers Model" version="1.0.0" xmlns="http://www.cinchy.co">
+  <Schema>
+    <Tables>
+      <Table name="Users" domain="Cinchy" guid="27d4314b-adee-4e89-ad7f-2381a21729cf" icon="fa fa-user" iconColour="#00B050" description="System table for maintaining users">
+          <Columns>
+            <Text name="Username" guid="3a2bb30a-4ab3-497b-9231-15db8fc9002f" isMandatory="true" maxLength="100" />
+            <Choice name="Authentication Method" guid="56ca7f7b-1dee-4ddd-b3ec-466b62e1bf51" isMandatory="true" allowLinking="false" allowDisplayInLinkedViews="false">
+              <Option>Cinchy User Account</Option>
+              <Option>Single Sign-On</Option>
+              <Option>Non Interactive</Option>
+            </Choice>
+            <Text name="Password" guid="060e2fae-3c25-40ea-b57c-cfea9dccd311" isMandatory="true" allowLinking="false" allowDisplayInLinkedViews="false" maxLength="100" />
+            <Text name="Email Address" guid="c60bdfab-1977-4b1f-b749-905d36dbcd19" isMandatory="true" allowLinking="false" maxLength="100" />
+            <Text name="Email Verification Code" guid="5d57bc64-e5bc-4f72-8902-005b7318a37b" allowLinking="false" allowDisplayInLinkedViews="false" maxLength="100" />
+            <YesNo name="Email Verified" guid="c33917c2-eb53-4349-897c-b4802c5fdb8d" allowLinking="false" allowDisplayInLinkedViews="false" />
+            <Text name="First Name" guid="36ca9f29-7dc3-43a2-8785-7e9068e4067b" isMandatory="true" allowLinking="false" allowDisplayInLinkedViews="false" maxLength="100" />
+            <Text name="Last Name" guid="63658d7c-ed81-4fd0-8f06-cc5330148653" allowLinking="false" allowDisplayInLinkedViews="false" maxLength="100" />
+            <Calculated name="Name" guid="6f09356a-5ff0-4364-b789-5e7876f654e8" allowLinking="false" calculationExpression="CONCAT([First Name], (CASE WHEN [Last Name] is NULL or LTRIM([Last Name]) = '' THEN '' ELSE ' ' END), ISNULL([Last Name], ''))" outputFormat="Text" outputFieldLength="205" />
+            <Calculated name="Display Name" guid="49c83481-e731-4b18-b7b9-fd621fafd0d7" calculationExpression="CONCAT([First Name], (CASE WHEN [Last Name] is NULL or LTRIM([Last Name]) = '' THEN '' ELSE ' ' END), ISNULL([Last Name], ''), ' (', [Username], ')')" outputFormat="Text" outputFieldLength="305" />
+            <Binary name="Profile Photo" guid="149bc879-f7ea-402d-95bf-7ddac1be5c20" allowLinking="false" allowDisplayInLinkedViews="false" />
+            <Date name="Password Expiration Timestamp" guid="17b04aca-5876-4ebd-bfd1-abce9c5f294c" allowLinking="false" allowDisplayInLinkedViews="false" />
+            <YesNo name="Is Disabled" guid="56510e8b-5936-460a-8f61-51fa1cbff733" allowLinking="false" allowDisplayInLinkedViews="false" defaultValue="false" />
+            <Date name="Locked Timestamp" guid="6d546626-d61c-48b0-a3c0-f55349058e53" allowLinking="false" allowDisplayInLinkedViews="false" />
+            <YesNo name="Can Design Tables" guid="7ca00323-fe06-4cf5-a2cc-775d0975a9ba" allowLinking="false" allowDisplayInLinkedViews="false" defaultValue="true" />
+            <YesNo name="Can Design Queries" guid="40f6b9d9-23d0-4445-8aba-bbe954a1340c" allowLinking="false" allowDisplayInLinkedViews="false" defaultValue="true" />
+          </Columns>
+          <UniqueConstraints>
+            <UniqueConstraint name="UC_Username">
+              <Column>Username</Column>
+            </UniqueConstraint>
+          </UniqueConstraints>
+      </Table>
+      <Table name="Users" domain="SDK Demo" guid="0d8ee3f1-c5ef-40e1-88fb-70665f8877c6" icon="fa fa-users" iconColour="#002060">
+        <Columns>
+          <Link name="Name" guid="842ad43a-8f05-4a71-aa58-1ffc9d595a6d" linkedTableDomain="Cinchy" linkedTable="Users" linkFilterExpression="">
+            <SearchDisplayColumns>
+              <LinkedColumn isPrimary="true">Username</LinkedColumn>
+            </SearchDisplayColumns>
+          </Link>
+        </Columns>
+        <UniqueConstraints />
+      </Table>
+      <Table name="Questions" domain="SDK Demo" guid="110849f7-b4c2-4c19-9d39-506d10f757af" icon="fa fa-question-circle" iconColour="#002060">
+        <Columns>
+          <Text name="Question" guid="a65fec7c-0738-46fe-b8fb-497b9305f39d" isMandatory="true" />
+          <Text name="Location" guid="a366e5d7-610e-4569-bc1e-917134c70b07" />
+          <Link name="Asker" guid="053b8e1b-3945-4e68-952b-bd218016bbd5" linkedTableDomain="SDK Demo" linkedTable="Users" linkFilterExpression="">
+            <SearchDisplayColumns>
+              <LinkedColumn isPrimary="true">Name</LinkedColumn>
+            </SearchDisplayColumns>
+          </Link>
+        </Columns>
+        <UniqueConstraints />
+      </Table>
+      <Table name="Answers" domain="SDK Demo" guid="d4f6b0fb-8459-4d03-8678-02df30559e5f" icon="fa fa-adn" iconColour="#002060">
+        <Columns>
+          <Text name="Answer" guid="e115a138-57ea-4051-b24b-c485dc82c0bf" isMandatory="true" />
+          <Link name="Question" guid="aecc11b7-5041-4ebf-8021-bded986d16d9" isMandatory="true" linkedTableDomain="SDK Demo" linkedTable="Questions" linkFilterExpression="">
+            <SearchDisplayColumns>
+              <LinkedColumn isPrimary="true">Cinchy Id</LinkedColumn>
+            </SearchDisplayColumns>
+          </Link>
+          <Link name="User" guid="f210d2e5-d394-4312-89e8-c6d2165f5ea3" isMandatory="true" linkedTableDomain="SDK Demo" linkedTable="Users" linkFilterExpression="">
+            <SearchDisplayColumns>
+              <LinkedColumn isPrimary="true">Name</LinkedColumn>
+            </SearchDisplayColumns>
+          </Link>
+        </Columns>
+        <UniqueConstraints />
+      </Table>
+    </Tables>
+  </Schema>
+</Model>
