@@ -11,6 +11,8 @@ $ npm install @cinchy-co/angular-sdk --save
 Please use version 2.x.x and 3.x.x if you are using **Angular 6** or **Angular 7** and **Cinchy v2.x.x**.
 If you are using **Angular 5** and a lower version of Cinchy, use version 1.x.x or lower.
 
+In order to use the [.getUserPreferences()](#get_user_preferences) and [.getTranslatedLiterals(guids, debug?)](#get_translated_literals) functions in the API, your Cinchy version should be at least at **Cinchy v4.x.x**.
+
 ## Importing the Cinchy Library
 
 From your Angular `AppModule`:
@@ -210,6 +212,64 @@ this._cinchyService.executeCsql(query, params).subscribe(
     });
 ```
 
+## Using Translate API
+
+In order to use the Translation API, you will have to use the [getTranslatedLiterals(guids)](#get_translated_literals) function and using the returned dictionary to bind the translation text into your view.
+
+Assuming you have CinchyService setup and a user is logged in, follow these steps to get translation working:
+
+1). In your component, import [CinchyLiteralDictionary](#cinchy_literal_dictionary) from @cinchy-co/angular-sdk.
+
+```typescript
+import { CinchyLiteralDictionary } from '@cinchy-co/angular-sdk';
+```
+
+2). Find the strings you want translated inside the `Literals` table in the `Cinchy` domain. Then gather the corresponding guids of the strings and insert them into an array inside your component. Also initialize a [CinchyLiteralDictionary](#cinchy_literal_dictionary) object.
+
+```typescript
+export class AppComponent {
+  literalDictionary: CinchyLiteralDictionary;
+  guids: string[] = ["27d4314b-adee-4e89-ad7f-2381a21729cf",
+  "67c7dab0-9a7d-4ec9-88d0-271700c779b4",
+  "47d9840d-0e09-4693-ae52-c726c5927a3a"];
+```
+
+3). Bind the guids to your component's view.
+
+```html
+<div *ngIf="literalDictionary">
+    <h1>{{ literalDictionary['27d4314b-adee-4e89-ad7f-2381a21729cf'].translation }}</h1>
+    <p>Translation 1: {{ literalDictionary['67c7dab0-9a7d-4ec9-88d0-271700c779b4'].translation }}!</p>
+    <p>Translation 2: {{ literalDictionary['47d9840d-0e09-4693-ae52-c726c5927a3a'].translation }}!</p>
+</div>
+```
+
+4). Make the API call by passing in the guids into [getTranslatedLiterals(guids)](#get_translated_literals) and setting dictionary you initialized in the previous step as the response.
+
+```typescript
+export class AppComponent {
+    literalDictionary: CinchyLiteralDictionary;
+    guids: string[] = ["27d4314b-adee-4e89-ad7f-2381a21729cf",
+    "67c7dab0-9a7d-4ec9-88d0-271700c779b4",
+    "47d9840d-0e09-4693-ae52-c726c5927a3a"];
+
+    constructor(private _cinchyService: CinchyService) {
+        var _this = this;
+        this._cinchyService.login().then(function() {
+        _this._cinchyService.getTranslatedLiterals(_this.guids).subscribe(
+                resp => {
+                    _this.literalDictionary = resp;
+                },
+                error => {
+                    console.log('Error getting translations: ', error);
+                }
+            );
+        });
+    }
+}
+```
+
+The translated text will then automatically bind into the view.
 
 ## API
 
@@ -231,6 +291,8 @@ this._cinchyService.executeCsql(query, params).subscribe(
    * [.getTableEntitlementsById(tableId)](#get_table_entitlements_by_id) ⇒ <code>Observable</code>
    * [.getTableEntitlementsByGuid(tableGuid)](#get_table_entitlements_by_guid) ⇒ <code>Observable</code>
    * [.getTableEntitlementsByName(domainName, tableName)](#get_table_entitlements_by_name) ⇒ <code>Observable</code>
+   * [.getUserPreferences()](#get_user_preferences) ⇒ <code>Observable</code>
+   * [.getTranslatedLiterals(guids, debug?)](#get_translated_literals) ⇒ <code>Observable</code>
 * [Cinchy.QueryResult](#cinchy_query_result) : <code>Object</code>
    * [.convertToObject(key)](#convert_to_object) ⇒ <code>Object</code>
    * [.getColumns()](#get_columns) ⇒ <code>Array&lt;Object&gt;</code>
@@ -244,6 +306,9 @@ this._cinchyService.executeCsql(query, params).subscribe(
    * [.getCellValue(col)](#get_cell_value) ⇒ <code>any</code>
    * [.getMultiselectCellValue(col)](#get_multiselect_cell_value) ⇒ <code>Array&lt;String&gt;</code>
    * [.toObjectArray()](#to_object_array) ⇒ <code>Array&lt;Object&gt;</code>
+* [CinchyUserPreference](#cinchy_user_preference) : <code>Object</code>
+* [CinchyLiteralDictionary](#cinchy_literal_dictionary) : <code>Object</code>
+* [CinchyLiteralTranslation](#cinchy_literal_translation) : <code>Object</code>
 
 <a name="cinchy_service"></a>
 
@@ -448,6 +513,26 @@ Retrieves a table's entitlements by its domain and name.
 | tableDomain | <code>string</code> | The name of the domain in which the table is in. |
 | tableName | <code>string</code> | The name of the table. |
 
+<a name="get_user_preferences"></a>
+
+### .getUserPreferences() => `Observable`
+Retrieves the current user's preferences (must be logged in).
+
+#### returns `Observable<CinchyUserPreference>`
+See [CinchyUserPreference](#cinchy_user_preference)
+
+<a name="get_translated_literals"></a>
+
+### .getTranslatedLiterals(guids, debug?) => `Observable`
+Retrieves a dictionary of guids that map to their string translations. The language and region of the returned translated text will be based on the current user's language and region preferences inside Cinchy.
+
+#### returns `Observable<CinchyLiteralDictionary>`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| guids | <code>string[]</code> | A string of guids corresponding to strings that you want translated. |
+| debug | <code>boolean</code> | (Optional) A boolean flag. If set to true, the data returned will have more information about the translated text. See [CinchyLiteralTranslation](#cinchy_literal_translation) |
+
 <a name="cinchy_query_result"></a>
 
 ## Cinchy.QueryResult
@@ -456,7 +541,7 @@ QueryResult is within the namespace `Cinchy`.
 
 It is the object that gets returned whenever you make a query using CinchyService. The object represents the data returned by a query in table form; providing you with functions to iterate through rows and columns to obtain values in each cell.
 
-Think of the QueryResult as a table with a pointer. We nagivate through the table by moving the pointer to each row (default points to -1). In basic useage, we use .moveToNextRow() or .moveToRow() to move the pointer to the next or another row in the table. While pointing to a row, you may use .getCellValue(col) to obtain a cell's value in the row the pointer is located (see [example usage](#example_usage)).
+Think of the QueryResult as a table with a pointer. We nagivate through the table by moving the pointer to each row (default points to -1). In basic useage, we use .moveToNextRow() or .moveToRow() to move the pointer to the next or another row in the table. While pointing to a row, you may use .getCellValue(col) to obtain a cell's value in the row the pointer is located (See [example usage](#example_usage)).
 
 <a name="convert_to_object"></a>
 
@@ -542,6 +627,75 @@ Returns an array of objects representing each row in the dataset.
 
 Each key in the object is a column name and maps it to the corresponding cell value.
 This is useful if you want to use a Array.prototype.map() function on each row.
+
+<a name="cinchy_user_preference"></a>
+
+## CinchyUserPreference : `Object`
+
+CinchyUserPreference is the object returned by the method [getUserPreferences()](#get_user_preferences). It is a data structure containing properties of the user's preferences.
+
+```typescript
+interface CinchyUserPreference {
+    username: string;
+    name: string;
+    displayName: string;
+    emailAddress: string;
+    profilePhoto: string;
+    language: string;
+    region: string;
+}
+```
+
+| Property | Type | Description |
+| --- | --- | --- |
+| username | <code>string</code> | The user's username. |
+| name | <code>string</code> | The user's full name. |
+| displayName | <code>string</code> | The user's name plus username in parentheses (e.g. "Jane Doe (jane.doe)"). |
+| profilePhoto | <code>string</code> | The user's profile photo in base64 encoding. |
+| language | <code>string</code> | The user's preferred language's subtag. |
+| region | <code>string</code> | The user's preferred region's subtag. |
+
+<a name="cinchy_literal_dictionary"></a>
+
+## CinchyLiteralDictionary : `Object`
+
+CinchyLiteralDictionary is the object returned by the method [getTranslatedLiterals(guids)](#get_translated_literals). It is a dictionary that maps guids to a [CinchyLiteralTranslation](#cinchy_literal_translation) object (which in turn contains the translation of the guid's corresponding string inside Cinchy).
+
+```typescript
+interface CinchyLiteralDictionary {
+    [guid: string]: CinchyLiteralTranslation;
+}
+```
+
+| Property | Type | Description |
+| --- | --- | --- |
+| `any guid string` | <code>CinchyLiteralTranslation</code> | Any guid key, maps to a CinchyLiteralTranslation object. |
+
+See [CinchyLiteralTranslation](#cinchy_literal_translation).
+
+<a name="cinchy_literal_translation"></a>
+
+## CinchyLiteralTranslation : `Object`
+
+CinchyLiteralTranslation is an object used within the [CinchyLiteralDictionary](#cinchy_literal_dictionary) dictionary. It is a data structure containing the translation of a literal within Cinchy.
+
+```typescript
+interface CinchyLiteralTranslation {
+    translation: string;
+    language: string;
+    region: string;
+    defaultText: boolean;
+}
+```
+
+| Property | Type | Description |
+| --- | --- | --- |
+| translation | <code>string</code> | The translation string. |
+| language | <code>string</code> | (only on debug) The language subtag of the translated text. |
+| region | <code>string</code> | (only on debug) The region subtag of the translated text. |
+| defaultText | <code>boolean</code> | (only on debug) Whether or not the default text was used for the translation text. |
+
+See [CinchyLiteralTranslation](#cinchy_literal_translation).
 
 ## More Documentaion
 See [here](http://support.cinchy.co/) for more information.
