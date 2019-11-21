@@ -1,13 +1,14 @@
 /* tslint:disable:max-line-length curly */
 
-import { Injectable, Injector, Inject, Optional } from '@angular/core';
-import { HttpClient, HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpResponse, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
-import { PACKAGE_ROOT_URL } from '@angular/core/src/application_tokens';
-import { OAuthService, JwksValidationHandler, AuthConfig, OAuthStorage, OAuthResourceServerErrorHandler, OAuthModuleConfig, ReceivedTokens } from 'angular-oauth2-oidc';
+import { Injectable, Inject } from '@angular/core';
+import { HttpClient, HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpHeaders } from '@angular/common/http';
+import { OAuthService, JwksValidationHandler, AuthConfig, OAuthStorage } from 'angular-oauth2-oidc';
 import { CinchyConfig } from './cinchy.config';
 import { CinchyGlobalConfig } from './cinchy.global.config';
-import { throwError as observableThrowError,  Observable, forkJoin, Subject, ReplaySubject, of } from 'rxjs';
-import { map, filter, catchError } from 'rxjs/operators';
+import { Observable, forkJoin, Subject, ReplaySubject, of, throwError } from 'rxjs';
+import { map, catchError, mergeMap } from 'rxjs/operators';
+import { CinchyLiteralDictionary } from './cinchy.literal.dictionary';
+import { CinchyUserPreference } from './cinchy.user.preference';
 
 @Injectable({
     providedIn: 'root'
@@ -154,7 +155,7 @@ export class CinchyService {
                         statusText: error.statusText,
                         response: error.responseJSON
                     });
-                    throw observableThrowError({cinchyException: cinchyEx});
+                    return throwError({cinchyException: cinchyEx});
                 })
             );*/
         return <Observable <{accessTokenIsValid: boolean}>> this._httpClient.get(this.cinchyRootUrl + '/Account/GetGroupsCurrentUserBelongsTo',
@@ -193,7 +194,7 @@ export class CinchyService {
                         statusText: error.statusText,
                         response: error.responseJSON
                     });
-                    throw observableThrowError({cinchyException: cinchyEx, callbackState: callbackState});
+                    return throwError({cinchyException: cinchyEx, callbackState: callbackState});
                 })
             );
     }
@@ -229,7 +230,7 @@ export class CinchyService {
 
         return <Observable <{queryResult: Cinchy.QueryResult, callbackState}>> this._executeQuery(apiUrl, formattedParams, errorMsg, callbackState).pipe(
             map( response => response),
-            catchError( error => { throw observableThrowError(error); })
+            catchError( error => { return throwError(error); })
         );
     }
 
@@ -243,7 +244,7 @@ export class CinchyService {
 
         return <Observable <{queryResult: Cinchy.QueryResult, callbackState}>> this._executeQuery(apiUrl, params, errorMsg, callbackState).pipe(
             map( response => response),
-            catchError(error => { throw observableThrowError(error); })
+            catchError(error => { return throwError(error); })
         );
     }
 
@@ -261,7 +262,7 @@ export class CinchyService {
                         statusText: error.statusText,
                         response: error.responseJSON
                     });
-                    throw observableThrowError({cinchyException: cinchyEx, callbackState: callbackState});
+                    return throwError({cinchyException: cinchyEx, callbackState: callbackState});
                 })
         );
     }
@@ -287,7 +288,7 @@ export class CinchyService {
                         statusText: error.statusText,
                         response: error.responseJSON
                     });
-                        throw observableThrowError({cinchyException: cinchyEx, callbackState: callbackState});
+                        return throwError({cinchyException: cinchyEx, callbackState: callbackState});
                 })
             );
     }
@@ -315,7 +316,7 @@ export class CinchyService {
                     statusText: error.statusText,
                     response: error.responseJSON
                 });
-                throw observableThrowError({cinchyException: cinchyEx, callbackState: callbackState});
+                return throwError({cinchyException: cinchyEx, callbackState: callbackState});
             })
         );
     }
@@ -341,7 +342,7 @@ export class CinchyService {
                         statusText: error.statusText,
                         response: error.responseJSON
                     });
-                    throw observableThrowError({cinchyException: cinchyEx, callbackState: callbackState});
+                    return throwError({cinchyException: cinchyEx, callbackState: callbackState});
                 })
             );
     }
@@ -368,7 +369,7 @@ export class CinchyService {
                     statusText: error.statusText,
                     response: error.responseJSON
                 });
-                throw observableThrowError({cinchyException: cinchyEx, callbackState: callbackState});
+                return throwError({cinchyException: cinchyEx, callbackState: callbackState});
             })
         );
     }
@@ -394,7 +395,7 @@ export class CinchyService {
                     return data;
                 }),
                 catchError(error => {
-                    throw observableThrowError(error);
+                    return throwError(error);
                 })
             );
     }
@@ -407,7 +408,7 @@ export class CinchyService {
                     return data;
                 }),
                 catchError(error => {
-                    throw observableThrowError(error);
+                    return throwError(error);
                 })
             );
     }
@@ -420,7 +421,7 @@ export class CinchyService {
                 return data;
             }),
             catchError(error => {
-                throw observableThrowError(error);
+                return throwError(error);
             })
         );
     }
@@ -433,9 +434,53 @@ export class CinchyService {
                     return data;
                 }),
                 catchError(error => {
-                    throw observableThrowError(error);
+                    return throwError(error);
                 })
             );
+    }
+
+    getUserPreferences(): Observable<CinchyUserPreference> {
+        var query = `   SELECT u.[Username] as 'username', 
+                            u.[Name] as 'name', u.[Display Name] as 'displayName',
+                            u.[Email Address] as 'emailAddress',
+                            u.[Profile Photo] as 'profilePhoto',
+                            l.[Language].[Subtag] as 'language',
+                            l.[Region].[Subtag] as 'region' 
+                        FROM [Cinchy].[Users] u
+                        LEFT JOIN [Cinchy].[Language User Link Table] l 
+                            ON l.[User].[Cinchy Id] = u.[Cinchy Id]
+                        WHERE u.[Cinchy Id] = CurrentUserID();`;
+        var params = null;
+        return <Observable<CinchyUserPreference>> this.executeCsql(query, params).pipe(
+            map(data => {
+                let queryResult = data.queryResult.toObjectArray()[0];
+                let result: CinchyUserPreference = <CinchyUserPreference>queryResult;
+                return result;
+            }),
+            catchError(error => { return throwError(error); })
+        );
+    }
+
+    getTranslatedLiterals(guids: string[], debug: boolean = false): Observable<CinchyLiteralDictionary> {
+        return this.getUserPreferences().pipe(
+            mergeMap(data => {
+                var language = data.language;
+                var region = data.region;
+                return this._httpClient.post(this.cinchyRootUrl + '/API/Translate',
+                    { guids: guids, language: language, region: region, debug: debug },
+                    { headers: new HttpHeaders().set('Content-Type', 'application/json; charset=utf-8') }).pipe(
+                        map(response => {
+                            let translationData: any = response['data'];
+                            let result: CinchyLiteralDictionary = <CinchyLiteralDictionary>translationData;
+                            return result;
+                        }),
+                        catchError(error => {
+                            return throwError(error);
+                        })
+                    );
+            }),
+            catchError(error => { return throwError(error)})
+        );
     }
 
     // Timestamp: 2016.03.07-12:29:28 (last modified)
