@@ -9,6 +9,8 @@ import { CinchyGlobalConfig } from './cinchy.global.config';
 export * from './cinchy.service';
 export * from './cinchy.config';
 export * from './cinchy.global.config';
+export * from './cinchy.literal.dictionary';
+export * from './cinchy.user.preference';
 
 @NgModule({
   imports: [
