@@ -8,9 +8,13 @@ To install this library, go to your angular project directory and use:
 $ npm install @cinchy-co/angular-sdk --save
 ```
 
-Please use version 2.x.x and 3.x.x if you are using **Angular 6** or **Angular 7** and **Cinchy v2.x.x**.
+Please use version 2.x.x and 3.x.x if you are using **Angular 6** / **Angular 7** / **Angular 8** and **Cinchy v2.x.x** / **Cinchy v3.x.x**.
+
+Please use version 4.x.x if you are using **Angular 6** / **Angular 7** / **Angular 8** and **Cinchy v4.x.x**.
+
 If you are using **Angular 5** and a lower version of Cinchy, use version 1.x.x or lower.
 
+In order to use the [.getUserPreferences()](#get_user_preferences) and [.getTranslatedLiterals(guids, debug?)](#get_translated_literals) functions in the API (added since version 4.0.0), your Cinchy version should be at least on **Cinchy v4.x.x**.
 ## Importing the Cinchy Library
 
 From your Angular `AppModule`:
