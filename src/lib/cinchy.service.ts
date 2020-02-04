@@ -415,7 +415,7 @@ export class CinchyService {
 
     getTableEntitlementsByGuid(tableGuid): Observable<any> {
         return this._httpClient.post(this.cinchyRootUrl + '/Account/GetTableEntitlementsByGuid',
-            { 'tableId': tableGuid },
+            { 'tableGuid': tableGuid },
             { headers: new HttpHeaders().set('Content-Type', 'application/json; charset=utf-8') }).pipe(
             map(data => {
                 return data;
@@ -445,9 +445,10 @@ export class CinchyService {
                             u.[Email Address] as 'emailAddress',
                             u.[Profile Photo] as 'profilePhoto',
                             l.[Language].[Subtag] as 'language',
-                            l.[Region].[Subtag] as 'region' 
+                            l.[Region].[Subtag] as 'region',
+                            l.[Time Zone] as 'timeZone' 
                         FROM [Cinchy].[Users] u
-                        LEFT JOIN [Cinchy].[Language User Link Table] l 
+                        LEFT JOIN [Cinchy].[User Preferences] l 
                             ON l.[User].[Cinchy Id] = u.[Cinchy Id]
                         WHERE u.[Cinchy Id] = CurrentUserID();`;
         var params = null;
