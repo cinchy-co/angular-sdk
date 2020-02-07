@@ -208,19 +208,25 @@ export class CinchyService {
         if (isNonNullObject(params)) {
             let idx = 0;
             Object.keys(params).forEach(function (key) {
-                formattedParams['Parameters[' + idx + '].ParameterName'] = key;
-                let paramType = typeof params[key];
-                if (paramType === 'undefined' || paramType === 'object') {
-                    formattedParams['Parameters[' + idx + '].ValueType'] = 'System.String';
-                    formattedParams['Parameters[' + idx + '].XmlSerializedValue'] = '';
+                if (key.toLowerCase() == '@connectionid') {
+                    formattedParams['ConnectionId'] = params[key];
+                } else if (key.toLowerCase() == '@transactionid') {
+                    formattedParams['TransactionId'] = params[key];
                 } else {
-                    formattedParams['Parameters[' + idx + '].XmlSerializedValue'] = params[key];
-                    if (paramType === 'number')
-                        formattedParams['Parameters[' + idx + '].ValueType'] = 'System.Double';
-                    else if (paramType === 'boolean')
-                        formattedParams['Parameters[' + idx + '].ValueType'] = 'System.Boolean';
-                    else
+                    formattedParams['Parameters[' + idx + '].ParameterName'] = key;
+                    let paramType = typeof params[key];
+                    if (paramType === 'undefined' || paramType === 'object') {
                         formattedParams['Parameters[' + idx + '].ValueType'] = 'System.String';
+                        formattedParams['Parameters[' + idx + '].XmlSerializedValue'] = '';
+                    } else {
+                        formattedParams['Parameters[' + idx + '].XmlSerializedValue'] = params[key];
+                        if (paramType === 'number')
+                            formattedParams['Parameters[' + idx + '].ValueType'] = 'System.Double';
+                        else if (paramType === 'boolean')
+                            formattedParams['Parameters[' + idx + '].ValueType'] = 'System.Boolean';
+                        else
+                            formattedParams['Parameters[' + idx + '].ValueType'] = 'System.String';
+                    }
                 }
                 idx++;
             });
