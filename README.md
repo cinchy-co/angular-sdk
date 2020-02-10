@@ -10,7 +10,7 @@ $ npm install @cinchy-co/angular-sdk --save
 
 Please use version 2.x.x and 3.x.x if you are using **Angular 6** / **Angular 7** / **Angular 8** and **Cinchy v2.x.x** / **Cinchy v3.x.x**.
 
-Please use version 4.0.0 if you are using **Angular 6** / **Angular 7** / **Angular 8** and **Cinchy v4.5.x**.
+Please use version 4.0.0 if you are using **Angular 6** / **Angular 7** / **Angular 8** and anything from **Cinchy 4.0.0 to Cinchy v4.5.x**.
 
 Please use version 4.1.0 if you are using **Angular 6** / **Angular 7** / **Angular 8** and **Cinchy v4.6.0 and up**.
 
