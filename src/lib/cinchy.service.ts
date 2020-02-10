@@ -208,19 +208,25 @@ export class CinchyService {
         if (isNonNullObject(params)) {
             let idx = 0;
             Object.keys(params).forEach(function (key) {
-                formattedParams['Parameters[' + idx + '].ParameterName'] = key;
-                let paramType = typeof params[key];
-                if (paramType === 'undefined' || paramType === 'object') {
-                    formattedParams['Parameters[' + idx + '].ValueType'] = 'System.String';
-                    formattedParams['Parameters[' + idx + '].XmlSerializedValue'] = '';
+                if (key.toLowerCase() == '@connectionid') {
+                    formattedParams['ConnectionId'] = params[key];
+                } else if (key.toLowerCase() == '@transactionid') {
+                    formattedParams['TransactionId'] = params[key];
                 } else {
-                    formattedParams['Parameters[' + idx + '].XmlSerializedValue'] = params[key];
-                    if (paramType === 'number')
-                        formattedParams['Parameters[' + idx + '].ValueType'] = 'System.Double';
-                    else if (paramType === 'boolean')
-                        formattedParams['Parameters[' + idx + '].ValueType'] = 'System.Boolean';
-                    else
+                    formattedParams['Parameters[' + idx + '].ParameterName'] = key;
+                    let paramType = typeof params[key];
+                    if (paramType === 'undefined' || paramType === 'object') {
                         formattedParams['Parameters[' + idx + '].ValueType'] = 'System.String';
+                        formattedParams['Parameters[' + idx + '].XmlSerializedValue'] = '';
+                    } else {
+                        formattedParams['Parameters[' + idx + '].XmlSerializedValue'] = params[key];
+                        if (paramType === 'number')
+                            formattedParams['Parameters[' + idx + '].ValueType'] = 'System.Double';
+                        else if (paramType === 'boolean')
+                            formattedParams['Parameters[' + idx + '].ValueType'] = 'System.Boolean';
+                        else
+                            formattedParams['Parameters[' + idx + '].ValueType'] = 'System.String';
+                    }
                 }
                 idx++;
             });
@@ -415,7 +421,7 @@ export class CinchyService {
 
     getTableEntitlementsByGuid(tableGuid): Observable<any> {
         return this._httpClient.post(this.cinchyRootUrl + '/Account/GetTableEntitlementsByGuid',
-            { 'tableId': tableGuid },
+            { 'tableGuid': tableGuid },
             { headers: new HttpHeaders().set('Content-Type', 'application/json; charset=utf-8') }).pipe(
             map(data => {
                 return data;
@@ -445,9 +451,10 @@ export class CinchyService {
                             u.[Email Address] as 'emailAddress',
                             u.[Profile Photo] as 'profilePhoto',
                             l.[Language].[Subtag] as 'language',
-                            l.[Region].[Subtag] as 'region' 
+                            l.[Region].[Subtag] as 'region',
+                            l.[Time Zone] as 'timeZone' 
                         FROM [Cinchy].[Users] u
-                        LEFT JOIN [Cinchy].[Language User Link Table] l 
+                        LEFT JOIN [Cinchy].[User Preferences] l 
                             ON l.[User].[Cinchy Id] = u.[Cinchy Id]
                         WHERE u.[Cinchy Id] = CurrentUserID();`;
         var params = null;

@@ -10,7 +10,9 @@ $ npm install @cinchy-co/angular-sdk --save
 
 Please use version 2.x.x and 3.x.x if you are using **Angular 6** / **Angular 7** / **Angular 8** and **Cinchy v2.x.x** / **Cinchy v3.x.x**.
 
-Please use version 4.x.x if you are using **Angular 6** / **Angular 7** / **Angular 8** and **Cinchy v4.x.x**.
+Please use version 4.0.0 if you are using **Angular 6** / **Angular 7** / **Angular 8** and **Cinchy v4.5.x**.
+
+Please use version 4.1.0 if you are using **Angular 6** / **Angular 7** / **Angular 8** and **Cinchy v4.6.0 and up**.
 
 If you are using **Angular 5** and a lower version of Cinchy, use version 1.x.x or lower.
 
@@ -645,6 +647,7 @@ interface CinchyUserPreference {
     profilePhoto: string;
     language: string;
     region: string;
+    timeZone: string;
 }
 ```
 
@@ -656,6 +659,7 @@ interface CinchyUserPreference {
 | profilePhoto | <code>string</code> | The user's profile photo in base64 encoding. |
 | language | <code>string</code> | The user's preferred language's subtag. |
 | region | <code>string</code> | The user's preferred region's subtag. |
+| timeZone | <code>string</code> | The user's preferred time zone. |
 
 <a name="cinchy_literal_dictionary"></a>
 

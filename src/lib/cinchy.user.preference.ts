@@ -6,4 +6,5 @@ export interface CinchyUserPreference {
     profilePhoto: string;
     language: string;
     region: string;
+    timeZone: string;
 }
