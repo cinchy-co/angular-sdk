@@ -12,7 +12,7 @@ Please use version 2.x.x and 3.x.x if you are using **Angular 6** / **Angular 7*
 
 Please use version 4.0.0 if you are using **Angular 6** / **Angular 7** / **Angular 8** and anything from **Cinchy 4.0.0 to Cinchy v4.5.x**.
 
-Please use version 4.1.0 if you are using **Angular 6** / **Angular 7** / **Angular 8** and **Cinchy v4.6.0 and up**.
+Please use version 4.1.* if you are using **Angular 6** / **Angular 7** / **Angular 8** and **Cinchy v4.6.0 and up**.
 
 If you are using **Angular 5** and a lower version of Cinchy, use version 1.x.x or lower.
 
@@ -381,6 +381,8 @@ this._cinchyService.checkSessionValidity().subscribe(
 ### .executeCsql(query, params, callbackState?) => `Observable`
 Performs a custom CSQL query.
 
+Properties such as "connectionid" and "transactionid" for values received from [openConnection()](#open_connection) and [beginTransaction()](#begin_transaction) can be inserted into the params object.
+
 #### returns `Observable<{queryResult: CinchyService.QueryResult, callbackState}>`
 
 | Param | Type | Description |
@@ -393,6 +395,8 @@ Performs a custom CSQL query.
 
 ### .executeQuery(domain, query, params, callbackState?) => `Observable`
 Performs a query that's within Cinchy.
+
+Properties such as "connectionid" and "transactionid" for values received from [openConnection()](#open_connection) and [beginTransaction()](#begin_transaction) can be inserted into the params object.
 
 #### returns `Observable<{queryResult: CinchyService.QueryResult, callbackState}>`
 

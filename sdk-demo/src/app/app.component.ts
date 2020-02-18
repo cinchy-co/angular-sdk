@@ -247,8 +247,8 @@ export class AppComponent {
       '@answer': this.currentAnswer,
       '@questionid': '[Cinchy Id]' + questionId,
       '@userid': '[Cinchy Id]' + userId,
-      '@connectionid': connectionId,
-      '@transactionid': transactionId // deprecated
+      'connectionid': connectionId,
+      'transactionid': transactionId // deprecated
     };
 
     // Executing the Insert Answer Query

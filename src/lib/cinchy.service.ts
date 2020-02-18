@@ -208,9 +208,9 @@ export class CinchyService {
         if (isNonNullObject(params)) {
             let idx = 0;
             Object.keys(params).forEach(function (key) {
-                if (key.toLowerCase() == '@connectionid') {
+                if (key.toLowerCase() == 'connectionid') {
                     formattedParams['ConnectionId'] = params[key];
-                } else if (key.toLowerCase() == '@transactionid') {
+                } else if (key.toLowerCase() == 'transactionid') {
                     formattedParams['TransactionId'] = params[key];
                 } else {
                     formattedParams['Parameters[' + idx + '].ParameterName'] = key;
