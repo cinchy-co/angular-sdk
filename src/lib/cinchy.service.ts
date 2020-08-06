@@ -7,7 +7,7 @@ import { CinchyConfig } from './cinchy.config';
 import { CinchyGlobalConfig } from './cinchy.global.config';
 import { Observable, forkJoin, Subject, ReplaySubject, of, throwError } from 'rxjs';
 import { map, catchError, mergeMap } from 'rxjs/operators';
-import { CinchyLiteralDictionary } from './cinchy.literal.dictionary';
+import {CinchyLiteralDictionary, QueryAcceptedTypes} from './cinchy.literal.dictionary';
 import { CinchyUserPreference } from './cinchy.user.preference';
 
 @Injectable({
@@ -199,10 +199,14 @@ export class CinchyService {
             );
     }
 
-    executeCsql(query: string, params: object, callbackState?): Observable<{queryResult: Cinchy.QueryResult, callbackState}> {
+    executeCsql(query: string, params: object, callbackState?, type?: QueryAcceptedTypes): Observable<{queryResult: Cinchy.QueryResult, callbackState}> {
+
         if (!isNonNullOrWhitespaceString(query))
             throw new Cinchy.CinchyException('Query cannot be empty', query);
         let formattedParams = {};
+        if(type){
+            formattedParams['Type'] = type;
+        }
         formattedParams['Query'] = query;
         formattedParams['resultformat'] = 'JSON';
         if (isNonNullObject(params)) {
