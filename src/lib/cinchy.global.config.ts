@@ -43,7 +43,7 @@ export class CinchyGlobalConfig {
 
     requireHttps = false;
 
-    sessionChecksEnabled = true;
+    sessionChecksEnabled = false;
 
     useIdTokenHintForSilentRefresh = true;
 
@@ -61,5 +61,6 @@ export class CinchyGlobalConfig {
         this.silentRefreshRedirectUri = config.silentRefreshRedirectUri;
         this.silentRefreshEnabled = config.silentRefreshEnabled ? config.silentRefreshEnabled : false;
         this.scope = config.scope ? 'js_api ' + config.scope : 'js_api openid id';
+        this.sessionChecksEnabled = typeof(config.authority) === 'string' && config.authority.startsWith('https');
     }
 }
