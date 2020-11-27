@@ -73,9 +73,11 @@ export class CinchyService {
             that._oAuthService.loadDiscoveryDocumentAndLogin()
             .then(response => {
                 resolve(response);
-                if (emitInfo) {
-                    that.emitAccessToken();
-                    that.emitIdentityClaims();
+                if (response) {
+                    if (emitInfo) {
+                        that.emitAccessToken();
+                        that.emitIdentityClaims();
+                    }
                 }
             })
             .catch(error => {
