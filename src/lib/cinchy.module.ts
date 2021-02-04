@@ -11,6 +11,7 @@ export * from './cinchy.config';
 export * from './cinchy.global.config';
 export * from './cinchy.literal.dictionary';
 export * from './cinchy.user.preference';
+export * from './cinchy.query.type';
 
 @NgModule({
   imports: [

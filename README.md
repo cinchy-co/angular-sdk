@@ -14,7 +14,7 @@ Please use version 4.0.0 if you are using **Angular 6** / **Angular 7** / **Angu
 
 Please use version 4.1.* if you are using **Angular 6** / **Angular 7** / **Angular 8** and **Cinchy v4.6.0 and up**.
 
-Please use version 4.2.* if you are using **Angular 6** / **Angular 7** / **Angular 8** and **Cinchy v4.15.1 and up** and/or experiencing login issues due to Chrome's new SameSite cookie policies.
+Please use version 4.2.0 and up if you are using **Angular 6** / **Angular 7** / **Angular 8** / **Angular 9** / **Angular 10** and **Cinchy v4.15.1 and up** and/or experiencing login issues due to Chrome's new SameSite cookie policies.
 
 If you are using **Angular 5** and a lower version of Cinchy, use version 1.x.x or lower.
 
@@ -285,7 +285,7 @@ The translated text will then automatically bind into the view.
    * [.getUserIdentity()](#get_user_identity) ⇒ <code>Observable</code>
    * [.getAccessToken()](#get_access_token) ⇒ <code>Observable</code>
    * [.checkSessionValidity()](#check_session_validity) ⇒ <code>Observable</code>
-   * [.executeCsql(query, params, callbackState?)](#execute_csql) ⇒ <code>Observable</code>
+   * [.executeCsql(query, params, callbackState?, type?)](#execute_csql) ⇒ <code>Observable</code>
    * [.executeQuery(domain, query, params, callbackState?)](#execute_query) ⇒ <code>Observable</code>
    * [.openConnection(callbackState?)](#open_connection) ⇒ <code>Observable</code>
    * [.closeConnection(connectionId, callbackState?)](#close_connection) ⇒ <code>Observable</code>
@@ -380,7 +380,7 @@ this._cinchyService.checkSessionValidity().subscribe(
 
 <a name="execute_csql"></a>
 
-### .executeCsql(query, params, callbackState?) => `Observable`
+### .executeCsql(query, params, callbackState?, type?) => `Observable`
 Performs a custom CSQL query.
 
 Properties such as "connectionid" and "transactionid" for values received from [openConnection()](#open_connection) and [beginTransaction()](#begin_transaction) can be inserted into the params object.
@@ -392,6 +392,7 @@ Properties such as "connectionid" and "transactionid" for values received from [
 | query | <code>string</code> | A CSQL query as a string |
 | params | <code>string</code> | An object with variables associated or needed with the query (connectionid, transactionid, parameterized values) |
 | callbackState? | <code>any</code> | Used for inserting an object of any type to be returned by the function's callbacks |
+| type? | <code>QueryType</code> | Used to determine what kind of query to execute (eg. QueryType.VERSION_HISTORY_QUERY would include version history records in the results). By default it uses QueryType.QUERY. See [QueryType](#query_type). |
 
 <a name="execute_query"></a>
 
@@ -709,8 +710,34 @@ interface CinchyLiteralTranslation {
 
 See [CinchyLiteralTranslation](#cinchy_literal_translation).
 
+<a name="query_type"></a>
+
+## QueryType : `enum`
+
+QueryType is an enum used within the [executeCsql()](#execute_csql) function. It determines what kind of query is executed.
+
+
+```typescript
+export enum QueryType {
+    QUERY = "QUERY",
+    DRAFT_QUERY = "DRAFT_QUERY",
+    SCALAR = "SCALAR",
+    NONQUERY = "NONQUERY",
+    VERSION_HISTORY_QUERY = "VERSION_HISTORY_QUERY"
+}
+```
+
+| Type | Description |
+| --- | --- |
+| QUERY | Query that returns only approved data |
+| DRAFT_QUERY | Query that returns draft values |
+| SCALAR | Query that returns a scalar value (the first row and first column's value) |
+| NONQUERY | Non query (eg. inserts, updates, deletes) |
+| VERSION_HISTORY_QUERY | Query that returns version history |
+
 ## More Documentaion
-See [here](http://support.cinchy.co/) for more information.
+See [here](https://platform.docs.cinchy.com/) for more documentation.
+See [here](http://support.cinchy.com/) for support.
 
 ## License
 This project is license under the terms of the [GNU General Public License v3.0](https://github.com/cinchy-co/angular-sdk/blob/master/LICENSE)
