@@ -3,7 +3,7 @@
 import { Injectable, Inject } from '@angular/core';
 import { HttpClient, HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpHeaders } from '@angular/common/http';
 import { OAuthService, AuthConfig, OAuthStorage } from 'angular-oauth2-oidc';
-import { JwksValidationHandler } from 'angular-oauth2-oidc-jwks';
+import { JwksValidationHandler } from './jwks-validation-handler';
 import { CinchyConfig } from './cinchy.config';
 import { CinchyGlobalConfig } from './cinchy.global.config';
 import { Observable, forkJoin, Subject, ReplaySubject, of, throwError } from 'rxjs';
