@@ -26,7 +26,8 @@
   },
   "dependencies": {
     "angular-oauth2-oidc": "^10.0.3",
-    "angular-oauth2-oidc-jwks": "^9.0.0",
+    "jsrsasign": "^8.0.24",
+    "tslib": "^2.0.0",
     "iframe-resizer": "^3.6.1",
     "rxjs-compat": "^6.2.0"
   }
