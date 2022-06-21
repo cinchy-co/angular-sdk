@@ -1,7 +1,3 @@
-import { Injectable } from '@angular/core';
-import { Conditional } from '@angular/compiler';
-
-@Injectable()
 export class CinchyConfig {
     /**
      * Cinchy's root url for making API calls
@@ -11,17 +7,17 @@ export class CinchyConfig {
     /**
      * Cinchy's authentication server url
      */
-    authority: string;
+    authority!: string;
 
     /**
      * The integrated app's ID
      */
-    clientId: string;
+    clientId!: string;
 
     /**
      * The redirectUri as registered with the auth server
      */
-    redirectUri: string;
+    redirectUri!: string;
 
     /**
      * The redirectUri after logging out, has to be permitted by auth server
