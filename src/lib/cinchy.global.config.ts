@@ -51,7 +51,7 @@ export class CinchyGlobalConfig {
     silentRefreshEnabled!: boolean;
 
     setUserValues(config: CinchyConfig) {
-        this.cinchyRootUrl = config.cinchyRootUrl ? config.cinchyRootUrl: '';
+        this.cinchyRootUrl = config.cinchyRootUrl;
         this.authority = config.authority;
         this.clientId = config.clientId;
         this.redirectUri = config.redirectUri;

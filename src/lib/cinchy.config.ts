@@ -2,7 +2,7 @@ export class CinchyConfig {
     /**
      * Cinchy's root url for making API calls
      */
-    cinchyRootUrl?: string;
+    cinchyRootUrl!: string;
 
     /**
      * Cinchy's authentication server url
