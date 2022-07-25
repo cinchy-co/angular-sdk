@@ -1,6 +1,6 @@
 {
   "name": "@cinchy-co/angular-sdk",
-  "version": "4.4.0",
+  "version": "5.0.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/cinchy-co/angular-sdk"
@@ -20,15 +20,12 @@
   "bugs": {
     "url": "https://github.com/cinchy-co/angular-sdk/issues"
   },
-  "peerDependencies": {
-    "@angular/core": "^6.0.0",
-    "zone.js": "^0.8.4"
-  },
   "dependencies": {
-    "angular-oauth2-oidc": "^10.0.3",
-    "jsrsasign": "^8.0.24",
-    "tslib": "^2.0.0",
-    "iframe-resizer": "^3.6.1",
-    "rxjs-compat": "^6.2.0"
+    "@types/jsrsasign": "^10.5.1",
+    "angular-oauth2-oidc": "^13.0.1",
+    "iframe-resizer": "^4.3.2",
+    "jsrsasign": "^10.5.24",
+    "rxjs-compat": "^6.6.7",
+    "tslib": "^2.3.0"
   }
 }

@@ -89,8 +89,10 @@ export class CinchyService {
     }
 
     private async refreshTokenOnLoadIfNeeded(): Promise<void> {
+        this._oAuthService.timeoutFactor = 0.75;
+        const tokenStoredAt:any = sessionStorage.getItem('access_token_stored_at');
         const expiration = this._oAuthService.getAccessTokenExpiration();
-        const storedAt = parseInt(sessionStorage.getItem('access_token_stored_at'), 10);
+        const storedAt = parseInt(tokenStoredAt, 10);
         const timeout = (expiration - storedAt) * this._oAuthService.timeoutFactor;
         const refreshAt = timeout + storedAt;
         const now = Math.round(new Date().getTime() / 1000);
@@ -123,7 +125,7 @@ export class CinchyService {
             {
                 headers: reqHeaders,
                 observe: 'response'
-            }).subscribe(data => {
+            }).subscribe((data) => {
                 const identityClaims = this._oAuthService.getIdentityClaims();
                 identityClaims['profile'] = data.body['profile'] ? data.body['profile'] : null;
                 identityClaims['email'] = data.body['email'] ? data.body['email'] : null;
@@ -483,7 +485,7 @@ export class CinchyService {
                 return this._httpClient.post(this.cinchyRootUrl + '/API/Translate',
                     { guids: guids, language: language, region: region, debug: debug },
                     { headers: new HttpHeaders().set('Content-Type', 'application/json; charset=utf-8') }).pipe(
-                        map(response => {
+                        map((response) => {
                             let translationData: any = response['data'];
                             let result: CinchyLiteralDictionary = <CinchyLiteralDictionary>translationData;
                             return result;
@@ -711,7 +713,7 @@ export namespace Cinchy {
 
         toObjectArray(): Array<Object> {
             let result = [];
-            this._jsonResult.data.forEach(row => {
+            this._jsonResult.data.forEach((row) => {
                 let rowObject = {};
                 for (let i = 0; i < row.length; i++) {
                     rowObject[this._jsonResult.schema[i].columnName] = row[i];

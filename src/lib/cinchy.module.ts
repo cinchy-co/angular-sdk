@@ -24,7 +24,7 @@ export * from './cinchy.query.type';
   declarations: []
 })
 export class CinchyModule {
-  static forRoot(): ModuleWithProviders<any> {
+  static forRoot(): ModuleWithProviders<CinchyModule> {
       return{
           ngModule: CinchyModule,
           providers: [OAuthService, CinchyService, CinchyGlobalConfig, {

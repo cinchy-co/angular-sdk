@@ -5,7 +5,6 @@ import {
   AbstractValidationHandler,
   ValidationParams
 } from 'angular-oauth2-oidc';
-
 /**
  * Validates the signature of an id_token against one
  * of the keys of an JSON Web Key Set (jwks).
@@ -36,7 +35,7 @@ export class JwksValidationHandler extends AbstractValidationHandler {
    */
   gracePeriodInSec = 600;
 
-  validateSignature(params: ValidationParams, retry = false): Promise<any> {
+  validateSignature(params: any, retry = false): Promise<any> {
     if (!params.idToken) throw new Error('Parameter idToken expected!');
     if (!params.idTokenHeader)
       throw new Error('Parameter idTokenHandler expected.');
@@ -54,16 +53,16 @@ export class JwksValidationHandler extends AbstractValidationHandler {
 
     let kid: string = params.idTokenHeader['kid'];
     let keys: object[] = params.jwks['keys'];
-    let key: object;
+    let key: any;
 
     let alg = params.idTokenHeader['alg'];
 
     if (kid) {
-      key = keys.find(k => k['kid'] === kid /* && k['use'] === 'sig' */);
+      key = keys.find((k:any) => k['kid'] === kid /* && k['use'] === 'sig' */);
     } else {
       let kty = this.alg2kty(alg);
       let matchingKeys = keys.filter(
-        k => k['kty'] === kty && k['use'] === 'sig'
+        (k:any) => k['kty'] === kty && k['use'] === 'sig'
       );
 
       /*
@@ -85,8 +84,8 @@ export class JwksValidationHandler extends AbstractValidationHandler {
     if (!key && !retry && params.loadKeys) {
       return params
         .loadKeys()
-        .then(loadedKeys => (params.jwks = loadedKeys))
-        .then(_ => this.validateSignature(params, true));
+        .then((loadedKeys:any) => (params.jwks = loadedKeys))
+        .then((_:any) => this.validateSignature(params, true));
     }
 
     if (!key && retry && !kid) {
@@ -107,7 +106,7 @@ export class JwksValidationHandler extends AbstractValidationHandler {
       return Promise.reject(error);
     }
 
-    let keyObj = rs.KEYUTIL.getKey(key);
+    let keyObj:any = rs.KEYUTIL.getKey(key);
     let validationOptions = {
       alg: this.allowedAlgorithms,
       gracePeriod: this.gracePeriodInSec
