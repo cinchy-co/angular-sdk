@@ -742,4 +742,4 @@ See [here](https://platform.docs.cinchy.com/) for more documentation.
 See [here](http://support.cinchy.com/) for support.
 
 ## License
-This project is license under the terms of the [GNU General Public License v3.0](https://github.com/cinchy-co/angular-sdk/blob/master/LICENSE)
+This project is license under the terms of the [MIT License](https://github.com/cinchy-co/angular-sdk/blob/master/LICENSE)
