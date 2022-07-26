@@ -18,6 +18,8 @@ Please use version 4.2.0 and up if you are using **Angular 6** / **Angular 7** /
 
 Please use version 4.4.0 and up if you are using **Angular 7** / **Angular 8** / **Angular 9** / **Angular 10** and **Cinchy v4.15.1 and up**.
 
+Please use version 5.0.0 and up if you are using **Angular 12** / **Angular 13** / **Angular 14** and **Cinchy v4.15.1 and up**.
+
 If you are using **Angular 5** and a lower version of Cinchy, use version 1.x.x or lower.
 
 In order to use the [.getUserPreferences()](#get_user_preferences) and [.getTranslatedLiterals(guids, debug?)](#get_translated_literals) functions in the API (added since version 4.0.0), your Cinchy version should be at least on **Cinchy v4.x.x**.
