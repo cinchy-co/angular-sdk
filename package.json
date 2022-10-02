@@ -21,7 +21,7 @@
     "url": "https://github.com/cinchy-co/angular-sdk/issues"
   },
   "dependencies": {
-    "@types/jsrsasign": "^10.5.1",
+    "@types/jsrsasign": "^10.5.3",
     "angular-oauth2-oidc": "^13.0.1",
     "iframe-resizer": "^4.3.2",
     "jsrsasign": "^10.5.26",
