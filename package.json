@@ -26,6 +26,6 @@
     "iframe-resizer": "^4.3.2",
     "jsrsasign": "^10.5.26",
     "rxjs-compat": "^6.6.7",
-    "tslib": "^2.3.0"
+    "tslib": "^2.4.1"
   }
 }
