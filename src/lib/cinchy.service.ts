@@ -1,30 +1,51 @@
 /* tslint:disable:max-line-length curly */
 
-import { Injectable, Inject } from '@angular/core';
+import { Observable, forkJoin, Subject, ReplaySubject, of, throwError, Subscription } from 'rxjs';
+import { map, catchError, mergeMap } from 'rxjs/operators';
+
+import { Injectable, Inject, OnDestroy } from '@angular/core';
 import { HttpClient, HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpHeaders } from '@angular/common/http';
+import { NavigationEnd, Router } from "@angular/router";
+
 import { OAuthService, AuthConfig, OAuthStorage } from 'angular-oauth2-oidc';
+
 import { JwksValidationHandler } from './jwks-validation-handler';
+
 import { CinchyConfig } from './cinchy.config';
 import { CinchyGlobalConfig } from './cinchy.global.config';
-import { Observable, forkJoin, Subject, ReplaySubject, of, throwError } from 'rxjs';
-import { map, catchError, mergeMap } from 'rxjs/operators';
 import { CinchyLiteralDictionary } from './cinchy.literal.dictionary';
-import { CinchyUserPreference } from './cinchy.user.preference';
 import { QueryType } from './cinchy.query.type';
+import { CinchyUserPreference } from './cinchy.user.preference';
+
 
 @Injectable({
     providedIn: 'root'
 })
-export class CinchyService {
+export class CinchyService implements OnDestroy {
 
     private cinchyRootUrl;
     private accessTokenSubject: Subject<string>;
     private userIdentitySubject: Subject<object>;
-    constructor(private _httpClient: HttpClient, private _oAuthStorge: OAuthStorage, private _oAuthService: OAuthService, private _cinchyGlobalConfig: CinchyGlobalConfig, @Inject(CinchyConfig) private config: CinchyConfig) {
+
+    private _routerSubscription: Subscription;
+
+    constructor(
+        private _httpClient: HttpClient,
+        private _oAuthStorage: OAuthStorage,
+        private _oAuthService: OAuthService,
+        private _router: Router,
+        private _cinchyGlobalConfig: CinchyGlobalConfig,
+        @Inject(CinchyConfig) private config: CinchyConfig
+    ) {
         this._cinchyGlobalConfig.setUserValues(this.config);
         this.cinchyRootUrl = this.config.cinchyRootUrl;
         this.accessTokenSubject = new ReplaySubject<string>();
         this.userIdentitySubject = new ReplaySubject<object>();
+
+
+        if (location.search.length) {
+            localStorage.setItem("[Cinchy][login][queryParams]", location.search.substr(1));
+        }
 
         // restart automatic silent refresh if the user refreshed the page while still logged in
         if (this._oAuthService.hasValidAccessToken()) {
@@ -35,10 +56,34 @@ export class CinchyService {
                 this.refreshTokenOnLoadIfNeeded();
             }
         }
+
+        this._router.events.subscribe({
+            next: (event) => {
+
+                if (event instanceof NavigationEnd) {
+                    const storedQueryParams = localStorage.getItem("[Cinchy][login][queryParams]");
+
+                    if (storedQueryParams?.length && !location.href.includes(storedQueryParams)) {
+                        const separator = (location.href.includes("?") || location.href.includes("#id_token")) ? "&" : "?";
+
+                        window.history.replaceState(window.history.state, document.title, `${location.href}${separator}${storedQueryParams}`);
+                    }
+                }
+            }
+        });
     }
 
+
+    ngOnDestroy(): void {
+
+        this._routerSubscription.unsubscribe();
+    }
+
+
     login(redirectUriOverride?: string): Promise<Boolean> {
-        let redirectUri;
+
+        let redirectUri: string;
+
         if (redirectUriOverride) {
             redirectUri = redirectUriOverride;
         } else {
@@ -53,7 +98,7 @@ export class CinchyService {
             responseType: this._cinchyGlobalConfig.responseType,
             requireHttps: this._cinchyGlobalConfig.requireHttps,
             sessionChecksEnabled: this._cinchyGlobalConfig.sessionChecksEnabled,
-            postLogoutRedirectUri: this._cinchyGlobalConfig.logoutRedirectUri,
+            postLogoutRedirectUri: this._cinchyGlobalConfig.logoutRedirectUri,                
             useIdTokenHintForSilentRefresh: this._cinchyGlobalConfig.useIdTokenHintForSilentRefresh,
             silentRefreshRedirectUri: this._cinchyGlobalConfig.silentRefreshRedirectUri
         };
@@ -68,29 +113,33 @@ export class CinchyService {
 
         let that = this;
         let emitInfo = true;
+
         if (this._oAuthService.hasValidAccessToken()) {
             emitInfo = false;
         }
-        return new Promise<boolean>(function(resolve, reject) {
+
+        return new Promise<boolean>(function (resolve, reject) {
             that._oAuthService.loadDiscoveryDocumentAndLogin()
-            .then(response => {
-                resolve(response);
-                if (response) {
-                    if (emitInfo) {
-                        that.emitAccessToken();
-                        that.emitIdentityClaims();
+                .then(response => {
+
+                    resolve(response);
+
+                    if (response) {
+                        if (emitInfo) {
+                            that.emitAccessToken();
+                            that.emitIdentityClaims();
+                        }
                     }
-                }
-            })
-            .catch(error => {
-                reject(error);
-            });
+                })
+                .catch(error => {
+                    reject(error);
+                });
         });
     }
 
     private async refreshTokenOnLoadIfNeeded(): Promise<void> {
         this._oAuthService.timeoutFactor = 0.75;
-        const tokenStoredAt:any = sessionStorage.getItem('access_token_stored_at');
+        const tokenStoredAt: any = sessionStorage.getItem('access_token_stored_at');
         const expiration = this._oAuthService.getAccessTokenExpiration();
         const storedAt = parseInt(tokenStoredAt, 10);
         const timeout = (expiration - storedAt) * this._oAuthService.timeoutFactor;
@@ -135,45 +184,24 @@ export class CinchyService {
             });
     }
 
-    checkIfSessionValid(): Observable<{accessTokenIsValid: boolean}> {
-        /* let form_data = null;
-        const url = this._cinchyGlobalConfig.authority + '/connect/introspect';
-        let reqHeaders = new HttpHeaders();
-        reqHeaders = reqHeaders.append('Content-Type', 'application/x-www-form-urlencoded');
-        reqHeaders = reqHeaders.append('Accept', 'application/json');
-        reqHeaders = reqHeaders.append('Authorization', 'Basic ' + btoa('adonet_api:scopeSecret'));
-        form_data = 'token=' + this._oAuthService.getAccessToken();
-        return <Observable <{accessTokenIsValid: boolean}>> this._httpClient.post(url,
-            form_data,
-            {
-                headers: reqHeaders,
-                observe: 'response'
-            }).pipe(
-                map( data => {
-                    if (data['active'])
-                        return {accessTokenIsValid: true};
-                    else
-                        return {accessTokenIsValid: false};
-                }),
-                catchError ( error => {
-                    const cinchyEx = new Cinchy.CinchyException('Session check failed, token is not valid', {
-                        status: error.status,
-                        statusText: error.statusText,
-                        response: error.responseJSON
-                    });
-                    return throwError({cinchyException: cinchyEx});
-                })
-            );*/
-        return <Observable <{accessTokenIsValid: boolean}>> this._httpClient.get(this.cinchyRootUrl + '/Account/GetGroupsCurrentUserBelongsTo',
-        { headers: new HttpHeaders().set('Content-Type', 'application/json; charset=utf-8')}).pipe(
+    checkIfSessionValid(): Observable<{ accessTokenIsValid: boolean }> {
+
+        return <Observable<{ accessTokenIsValid: boolean }>>this._httpClient.get(
+            this.cinchyRootUrl + '/Account/GetGroupsCurrentUserBelongsTo',
+            { headers: new HttpHeaders().set('Content-Type', 'application/json; charset=utf-8') }
+        ).pipe(
             map(data => {
-                return {accessTokenIsValid: true};
+
+                return { accessTokenIsValid: true };
             }),
-            catchError(val => of({accessTokenIsValid: false}))
+            catchError(() => {
+
+                return of({ accessTokenIsValid: false });
+            })
         );
     }
 
-    private _executeQuery(apiUrl: string, params: object, errorMsg: string, callbackState): Observable<{queryResult: Cinchy.QueryResult, callbackState}> {
+    private _executeQuery(apiUrl: string, params: object, errorMsg: string, callbackState): Observable<{ queryResult: Cinchy.QueryResult, callbackState }> {
         let form_data = null;
         if (!isNonNullObject(params)) {
             params = {
@@ -185,27 +213,27 @@ export class CinchyService {
             form_data = this.getFormUrlEncodedData(params);
         }
 
-        return <Observable <{queryResult: Cinchy.QueryResult, callbackState}>> this._httpClient.post(apiUrl,
+        return <Observable<{ queryResult: Cinchy.QueryResult, callbackState }>>this._httpClient.post(apiUrl,
             form_data,
             {
                 headers: new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded'),
             }).pipe(
-                map( data => {
+                map(data => {
                     const queryResult = new Cinchy.QueryResult(data);
-                    return {queryResult: queryResult, callbackState: callbackState};
+                    return { queryResult: queryResult, callbackState: callbackState };
                 }),
-                catchError( error => {
+                catchError(error => {
                     const cinchyEx = new Cinchy.CinchyException(errorMsg, {
                         status: error.status,
                         statusText: error.statusText,
                         response: error.responseJSON
                     });
-                    return throwError({cinchyException: cinchyEx, callbackState: callbackState});
+                    return throwError({ cinchyException: cinchyEx, callbackState: callbackState });
                 })
             );
     }
 
-    executeCsql(query: string, params: object, callbackState?, type?: QueryType): Observable<{queryResult: Cinchy.QueryResult, callbackState}> {
+    executeCsql(query: string, params: object, callbackState?, type?: QueryType): Observable<{ queryResult: Cinchy.QueryResult, callbackState }> {
 
         if (!isNonNullOrWhitespaceString(query))
             throw new Cinchy.CinchyException('Query cannot be empty', query);
@@ -241,15 +269,15 @@ export class CinchyService {
             });
         }
         let apiUrl = this.cinchyRootUrl + '/API/ExecuteCQL';
-        let errorMsg = 'Failed to execute query ' + query;
+        let errorMsg = '[EDIT] Failed to execute query ' + query;
 
-        return <Observable <{queryResult: Cinchy.QueryResult, callbackState}>> this._executeQuery(apiUrl, formattedParams, errorMsg, callbackState).pipe(
-            map( response => response),
-            catchError( error => { return throwError(error); })
+        return <Observable<{ queryResult: Cinchy.QueryResult, callbackState }>>this._executeQuery(apiUrl, formattedParams, errorMsg, callbackState).pipe(
+            map(response => response),
+            catchError(error => { return throwError(error); })
         );
     }
 
-    executeQuery(domain: string, query: string, params: object, callbackState?): Observable<{queryResult: Cinchy.QueryResult, callbackState}> {
+    executeQuery(domain: string, query: string, params: object, callbackState?): Observable<{ queryResult: Cinchy.QueryResult, callbackState }> {
         if (!isNonNullOrWhitespaceString(domain))
             throw new Cinchy.CinchyException('Domain must be a valid string', domain);
         if (!isNonNullOrWhitespaceString(query))
@@ -257,45 +285,45 @@ export class CinchyService {
         let apiUrl = this.cinchyRootUrl + '/API/' + domain + '/' + query;
         let errorMsg = 'Failed to execute query ' + query + ' within domain ' + domain;
 
-        return <Observable <{queryResult: Cinchy.QueryResult, callbackState}>> this._executeQuery(apiUrl, params, errorMsg, callbackState).pipe(
-            map( response => response),
+        return <Observable<{ queryResult: Cinchy.QueryResult, callbackState }>>this._executeQuery(apiUrl, params, errorMsg, callbackState).pipe(
+            map(response => response),
             catchError(error => { return throwError(error); })
         );
     }
 
-    openConnection(callbackState?): Observable<{connectionId: string, callbackState}> {
+    openConnection(callbackState?): Observable<{ connectionId: string, callbackState }> {
         const errorMsg = 'Failed to open connection';
-        return <Observable<{connectionId: string, callbackState}>> this._httpClient.get(this.cinchyRootUrl + '/API/OpenConnection', { responseType: 'text' } ).pipe(
+        return <Observable<{ connectionId: string, callbackState }>>this._httpClient.get(this.cinchyRootUrl + '/API/OpenConnection', { responseType: 'text' }).pipe(
             map(data => {
-                    let connectionId = data;
-                    let returnVal = { connectionId: connectionId, callbackState: callbackState};
-                    return { connectionId: connectionId, callbackState: callbackState};
-                }),
+                let connectionId = data;
+                let returnVal = { connectionId: connectionId, callbackState: callbackState };
+                return { connectionId: connectionId, callbackState: callbackState };
+            }),
             catchError(error => {
-                    let cinchyEx = new Cinchy.CinchyException(errorMsg, {
-                        status: error.status,
-                        statusText: error.statusText,
-                        response: error.responseJSON
-                    });
-                    return throwError({cinchyException: cinchyEx, callbackState: callbackState});
-                })
+                let cinchyEx = new Cinchy.CinchyException(errorMsg, {
+                    status: error.status,
+                    statusText: error.statusText,
+                    response: error.responseJSON
+                });
+                return throwError({ cinchyException: cinchyEx, callbackState: callbackState });
+            })
         );
     }
 
-    closeConnection(connectionId: string, callbackState?): Observable<{connectionId: string, callbackState}> {
+    closeConnection(connectionId: string, callbackState?): Observable<{ connectionId: string, callbackState }> {
         if (!connectionId)
             return;
         let errorMsg = 'Failed to close connection ' + connectionId;
         let form_data = this.getFormUrlEncodedData({ 'connectionId': connectionId });
 
-        return <Observable<{connectionId: string, callbackState}>> this._httpClient.post(this.cinchyRootUrl + '/API/CloseConnection',
+        return <Observable<{ connectionId: string, callbackState }>>this._httpClient.post(this.cinchyRootUrl + '/API/CloseConnection',
             form_data,
             {
                 headers: new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded'),
                 responseType: 'text'
             }).pipe(
                 map(data => {
-                    return({connectionId: connectionId, callbackState: callbackState});
+                    return ({ connectionId: connectionId, callbackState: callbackState });
                 }),
                 catchError(error => {
                     let cinchyEx = new Cinchy.CinchyException(errorMsg, {
@@ -303,72 +331,18 @@ export class CinchyService {
                         statusText: error.statusText,
                         response: error.responseJSON
                     });
-                        return throwError({cinchyException: cinchyEx, callbackState: callbackState});
+                    return throwError({ cinchyException: cinchyEx, callbackState: callbackState });
                 })
             );
     }
 
-    beginTransaction(connectionId: string, callbackState?): Observable<{transactionId: string, callbackState}> {
+    beginTransaction(connectionId: string, callbackState?): Observable<{ transactionId: string, callbackState }> {
         if (!connectionId)
             return null;
         let errorMsg = 'Failed to begin transaction on connection ' + connectionId;
         let form_data = this.getFormUrlEncodedData({ 'connectionId': connectionId });
 
-        return <Observable<{transactionId: string, callbackState}>> this._httpClient.post(this.cinchyRootUrl + '/API/BeginTransaction',
-            form_data,
-            {
-                headers: new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded'),
-                responseType: 'text'
-             }
-        ).pipe(
-            map(data => {
-                let transactionId = data;
-                return({transactionId: transactionId, callbackState: callbackState});
-            }),
-            catchError(error => {
-                let cinchyEx = new Cinchy.CinchyException(errorMsg, {
-                    status: error.status,
-                    statusText: error.statusText,
-                    response: error.responseJSON
-                });
-                return throwError({cinchyException: cinchyEx, callbackState: callbackState});
-            })
-        );
-    }
-
-    commitTransaction(connectionId: string, transactionId: string, callbackState?): Observable<{connectionId: string, transactionId: string, callbackState}> {
-        if (!connectionId || !transactionId)
-            return null;
-        let errorMsg = 'Failed to commit transaction ' + transactionId + ' on connection ' + connectionId;
-        let form_data = this.getFormUrlEncodedData({ 'connectionId': connectionId, 'transactionId': transactionId });
-
-        return <Observable<{connectionId: string, transactionId: string, callbackState}>> this._httpClient.post(this.cinchyRootUrl + '/API/CommitTransaction',
-            form_data,
-            {
-                headers: new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded'),
-                responseType: 'text'
-            }).pipe(
-                map( data => {
-                    return({connectionId: connectionId, transactionId: transactionId, callbackState});
-                }),
-                catchError(error => {
-                    let cinchyEx = new Cinchy.CinchyException(errorMsg, {
-                        status: error.status,
-                        statusText: error.statusText,
-                        response: error.responseJSON
-                    });
-                    return throwError({cinchyException: cinchyEx, callbackState: callbackState});
-                })
-            );
-    }
-
-    rollbackTransaction(connectionId: string, transactionId: string, callbackState?): Observable<{connectionId: string, transactionId: string, callbackState}> {
-        if (!connectionId || !transactionId)
-            return null;
-        let errorMsg = 'Failed to rollback transaction ' + transactionId + ' on connection ' + connectionId;
-        let form_data = this.getFormUrlEncodedData({ 'connectionId': connectionId, 'transactionId': transactionId });
-
-        return <Observable<{connectionId: string, transactionId: string, callbackState}>> this._httpClient.post(this.cinchyRootUrl + '/API/RollbackTransaction',
+        return <Observable<{ transactionId: string, callbackState }>>this._httpClient.post(this.cinchyRootUrl + '/API/BeginTransaction',
             form_data,
             {
                 headers: new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded'),
@@ -376,7 +350,8 @@ export class CinchyService {
             }
         ).pipe(
             map(data => {
-                return({connectionId: connectionId, transactionId: transactionId, callbackState});
+                let transactionId = data;
+                return ({ transactionId: transactionId, callbackState: callbackState });
             }),
             catchError(error => {
                 let cinchyEx = new Cinchy.CinchyException(errorMsg, {
@@ -384,28 +359,81 @@ export class CinchyService {
                     statusText: error.statusText,
                     response: error.responseJSON
                 });
-                return throwError({cinchyException: cinchyEx, callbackState: callbackState});
+                return throwError({ cinchyException: cinchyEx, callbackState: callbackState });
             })
         );
     }
 
-    executeQueries(queryParams: {domain: string, query: string, params, callbackState}[], callbackState?): Observable<{queryResult: Cinchy.QueryResult, callbackState}[]> {
+    commitTransaction(connectionId: string, transactionId: string, callbackState?): Observable<{ connectionId: string, transactionId: string, callbackState }> {
+        if (!connectionId || !transactionId)
+            return null;
+        let errorMsg = 'Failed to commit transaction ' + transactionId + ' on connection ' + connectionId;
+        let form_data = this.getFormUrlEncodedData({ 'connectionId': connectionId, 'transactionId': transactionId });
+
+        return <Observable<{ connectionId: string, transactionId: string, callbackState }>>this._httpClient.post(this.cinchyRootUrl + '/API/CommitTransaction',
+            form_data,
+            {
+                headers: new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded'),
+                responseType: 'text'
+            }).pipe(
+                map(data => {
+                    return ({ connectionId: connectionId, transactionId: transactionId, callbackState });
+                }),
+                catchError(error => {
+                    let cinchyEx = new Cinchy.CinchyException(errorMsg, {
+                        status: error.status,
+                        statusText: error.statusText,
+                        response: error.responseJSON
+                    });
+                    return throwError({ cinchyException: cinchyEx, callbackState: callbackState });
+                })
+            );
+    }
+
+    rollbackTransaction(connectionId: string, transactionId: string, callbackState?): Observable<{ connectionId: string, transactionId: string, callbackState }> {
+        if (!connectionId || !transactionId)
+            return null;
+        let errorMsg = 'Failed to rollback transaction ' + transactionId + ' on connection ' + connectionId;
+        let form_data = this.getFormUrlEncodedData({ 'connectionId': connectionId, 'transactionId': transactionId });
+
+        return <Observable<{ connectionId: string, transactionId: string, callbackState }>>this._httpClient.post(this.cinchyRootUrl + '/API/RollbackTransaction',
+            form_data,
+            {
+                headers: new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded'),
+                responseType: 'text'
+            }
+        ).pipe(
+            map(data => {
+                return ({ connectionId: connectionId, transactionId: transactionId, callbackState });
+            }),
+            catchError(error => {
+                let cinchyEx = new Cinchy.CinchyException(errorMsg, {
+                    status: error.status,
+                    statusText: error.statusText,
+                    response: error.responseJSON
+                });
+                return throwError({ cinchyException: cinchyEx, callbackState: callbackState });
+            })
+        );
+    }
+
+    executeQueries(queryParams: { domain: string, query: string, params, callbackState }[], callbackState?): Observable<{ queryResult: Cinchy.QueryResult, callbackState }[]> {
         if (!isNonZeroLengthArray(queryParams))
             throw new Cinchy.CinchyException('Failed to execute queries, queryParams must be specified as an array of objects, with each object containing the parameters required to invoke a single call to the executeQuery method', queryParams);
 
         let allObservables = [];
         for (let i = 0; i < queryParams.length; i++) {
-            allObservables.push(<Observable<{queryResult: Cinchy.QueryResult, callbackState}>> this.executeQuery(queryParams[i].domain, queryParams[i].query, queryParams[i].params, queryParams[i].callbackState));
+            allObservables.push(<Observable<{ queryResult: Cinchy.QueryResult, callbackState }>>this.executeQuery(queryParams[i].domain, queryParams[i].query, queryParams[i].params, queryParams[i].callbackState));
 
             if (i === queryParams.length - 1) {
-                return <Observable<{queryResult: Cinchy.QueryResult, callbackState}[]>> forkJoin(allObservables);
+                return <Observable<{ queryResult: Cinchy.QueryResult, callbackState }[]>>forkJoin(allObservables);
             }
         }
     }
 
     getGroupsCurrentUserBelongsTo(): Observable<any> {
         return this._httpClient.get(this.cinchyRootUrl + '/Account/GetGroupsCurrentUserBelongsTo',
-            { headers: new HttpHeaders().set('Content-Type', 'application/json; charset=utf-8')}).pipe(
+            { headers: new HttpHeaders().set('Content-Type', 'application/json; charset=utf-8') }).pipe(
                 map(data => {
                     return data;
                 }),
@@ -432,13 +460,13 @@ export class CinchyService {
         return this._httpClient.post(this.cinchyRootUrl + '/Account/GetTableEntitlementsByGuid',
             { 'tableGuid': tableGuid },
             { headers: new HttpHeaders().set('Content-Type', 'application/json; charset=utf-8') }).pipe(
-            map(data => {
-                return data;
-            }),
-            catchError(error => {
-                return throwError(error);
-            })
-        );
+                map(data => {
+                    return data;
+                }),
+                catchError(error => {
+                    return throwError(error);
+                })
+            );
     }
 
     getTableEntitlementsByName(domainName, tableName): Observable<any> {
@@ -467,7 +495,7 @@ export class CinchyService {
                             ON l.[User].[Cinchy Id] = u.[Cinchy Id]
                         WHERE u.[Cinchy Id] = CurrentUserID();`;
         var params = null;
-        return <Observable<CinchyUserPreference>> this.executeCsql(query, params).pipe(
+        return <Observable<CinchyUserPreference>>this.executeCsql(query, params).pipe(
             map(data => {
                 let queryResult = data.queryResult.toObjectArray()[0];
                 let result: CinchyUserPreference = <CinchyUserPreference>queryResult;
@@ -495,7 +523,7 @@ export class CinchyService {
                         })
                     );
             }),
-            catchError(error => { return throwError(error)})
+            catchError(error => { return throwError(error) })
         );
     }
 
@@ -652,7 +680,7 @@ export namespace Cinchy {
                 function (m0, m1, m2, m3) {
                     // Remove backslash from \' in single quoted values.
                     if (m1 !== undefined) a.push(m1.replace(/\\'/g, "'"));
-                        // Remove backslash from \" in double quoted values.
+                    // Remove backslash from \" in double quoted values.
                     else if (m2 !== undefined) a.push(m2.replace(/\\"/g, '"'));
                     else if (m3 !== undefined) a.push(m3);
                     return ''; // Return empty string.
@@ -688,7 +716,7 @@ export namespace Cinchy {
             return this._currentRowIdx;
         }
 
-        getColumns(): Array<{columnName: string, type: string}> {
+        getColumns(): Array<{ columnName: string, type: string }> {
             // creates a cloned version of the column list
             return this._columnsByIdx.map(function (obj) {
                 return {
@@ -796,7 +824,7 @@ function isNonNullOrWhitespaceString(text: string): boolean {
     if (typeof text !== 'string') return false;
     let re = /\s/gi;
     let result = text.replace(re, '');
-   return (result !== '');
+    return (result !== '');
 }
 
 function isNonNullObject(obj: any): boolean {
