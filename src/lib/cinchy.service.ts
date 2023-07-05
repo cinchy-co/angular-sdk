@@ -42,7 +42,7 @@ export class CinchyService implements OnDestroy {
         this.accessTokenSubject = new ReplaySubject<string>();
         this.userIdentitySubject = new ReplaySubject<object>();
 
-
+        // If there is a querystring present when the sdk loads, save it so that it can later be reloaded
         if (location.search.length) {
             localStorage.setItem("[Cinchy][login][queryParams]", location.search.substr(1));
         }
@@ -57,6 +57,8 @@ export class CinchyService implements OnDestroy {
             }
         }
 
+        // After the router resolves, it's probable that the authentication workflow has removed the querystring,
+        // so if we have one stored, we need to add it back in
         this._router.events.subscribe({
             next: (event) => {
 
@@ -269,7 +271,7 @@ export class CinchyService implements OnDestroy {
             });
         }
         let apiUrl = this.cinchyRootUrl + '/API/ExecuteCQL';
-        let errorMsg = '[EDIT] Failed to execute query ' + query;
+        let errorMsg = 'Failed to execute query ' + query;
 
         return <Observable<{ queryResult: Cinchy.QueryResult, callbackState }>>this._executeQuery(apiUrl, formattedParams, errorMsg, callbackState).pipe(
             map(response => response),
