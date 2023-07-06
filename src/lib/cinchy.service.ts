@@ -83,7 +83,7 @@ export class CinchyService implements OnDestroy {
             responseType: this._cinchyGlobalConfig.responseType,
             requireHttps: this._cinchyGlobalConfig.requireHttps,
             sessionChecksEnabled: this._cinchyGlobalConfig.sessionChecksEnabled,
-            postLogoutRedirectUri: this._cinchyGlobalConfig.logoutRedirectUri,                
+            postLogoutRedirectUri: this._cinchyGlobalConfig.logoutRedirectUri,
             useIdTokenHintForSilentRefresh: this._cinchyGlobalConfig.useIdTokenHintForSilentRefresh,
             silentRefreshRedirectUri: this._cinchyGlobalConfig.silentRefreshRedirectUri
         };
@@ -273,7 +273,7 @@ export class CinchyService implements OnDestroy {
             });
         }
         let apiUrl = this.cinchyRootUrl + '/API/ExecuteCQL';
-        let errorMsg = '[EDIT] Failed to execute query ' + query;
+        let errorMsg = 'Failed to execute query ' + query;
 
         return <Observable<{ queryResult: Cinchy.QueryResult, callbackState }>>this._executeQuery(apiUrl, formattedParams, errorMsg, callbackState).pipe(
             map(response => response),
