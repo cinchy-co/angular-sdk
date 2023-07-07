@@ -5,7 +5,7 @@ import { map, catchError, mergeMap } from 'rxjs/operators';
 
 import { Injectable, Inject, OnDestroy } from '@angular/core';
 import { HttpClient, HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpHeaders } from '@angular/common/http';
-import { NavigationEnd, Router } from "@angular/router";
+import { NavigationEnd, Router, RouterEvent } from "@angular/router";
 
 import { OAuthService, AuthConfig, OAuthStorage } from 'angular-oauth2-oidc';
 
@@ -41,11 +41,6 @@ export class CinchyService implements OnDestroy {
         this.cinchyRootUrl = this.config.cinchyRootUrl;
         this.accessTokenSubject = new ReplaySubject<string>();
         this.userIdentitySubject = new ReplaySubject<object>();
-
-
-        if (location.search.length) {
-            this._oAuthStorage.setItem("[Cinchy][login][queryParams]", location.search.substr(1));
-        }
 
         // restart automatic silent refresh if the user refreshed the page while still logged in
         if (this._oAuthService.hasValidAccessToken()) {
@@ -103,12 +98,21 @@ export class CinchyService implements OnDestroy {
             emitInfo = false;
         }
 
+        // In the event that there is a querystring present in the URL, it is likely to be lost when the login flow
+        // redirects back to the application. To prevent that, we save it here and then re-add it after the app returns
+        if (location.search.length) {
+            this._oAuthStorage.setItem("[Cinchy][login][queryParams]", location.search.substr(1));
+        }
+
         return new Promise<boolean>(function (resolve, reject) {
             that._oAuthService.loadDiscoveryDocumentAndLogin()
-                .then(response => {
+                .then((response: boolean) => {
 
+                    // We want to make sure that we only modify the URL after it has done its round trip, otherwise there's
+                    // a risk that it will either be mangled or that it could cause a mismatch between the URL and the list
+                    // of allowed URLs in the app's security policy'
                     const routerSubscription = that._router.events.subscribe({
-                        next: (event) => {
+                        next: (event: RouterEvent) => {
 
                             if (event instanceof NavigationEnd) {
                                 const storedQueryParams = that._oAuthStorage.getItem("[Cinchy][login][queryParams]");
@@ -118,9 +122,12 @@ export class CinchyService implements OnDestroy {
 
                                     window.history.replaceState(window.history.state, document.title, `${location.href}${separator}${storedQueryParams}`);
 
+
+                                    // Once the value has been retrieved, it is no longer needed
                                     that._oAuthStorage.removeItem("[Cinchy][login][queryParams]");
                                 }
 
+                                // This should only ever happen once, even if there's no stored querystring
                                 routerSubscription.unsubscribe();
                             }
                         }
