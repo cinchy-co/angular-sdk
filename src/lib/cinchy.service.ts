@@ -143,6 +143,10 @@ export class CinchyService implements OnDestroy {
                     }
                 })
                 .catch(error => {
+
+                    // If authorization fails, the login function will have to be called again anyway, so there's no reason to hold onto this value
+                    this._oAuthStorage.removeItem("[Cinchy][login][queryParams]");
+
                     reject(error);
                 });
         });
@@ -872,8 +876,7 @@ export class CinchyAuthInterceptor implements HttpInterceptor {
     constructor(
         private _cinchyGlobalConfig: CinchyGlobalConfig,
         private _oAuthStorage: OAuthStorage
-    ) {
-    }
+    ) {}
 
     public intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
         if (!isNonNullOrWhitespaceString(this._cinchyGlobalConfig.cinchyRootUrl))
