@@ -1,31 +1,58 @@
 {
-  "name": "@cinchy-co/angular-sdk",
-  "version": "5.0.0",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/cinchy-co/angular-sdk"
+  "name": "angular-sdk-wrapper",
+  "version": "0.0.0",
+  "scripts": {
+    "ng": "ng",
+    "clean": "npm run clean:windows:dist | npm run clean:windows:node_modules | npm run clean:unix",
+    "clean:windows:dist": "node -e \"if (process.platform === 'win32') process.exit(1)\" || , (if exist dist rmdir /Q /S dist && if exist node_modules rmdir /Q /S node_modules)",
+    "clean:windows:node_modules": "node -e \"if (process.platform === 'win32') process.exit(1)\" || , if exist node_modules rmdir /Q /S node_modules",
+    "clean:unix": "node -e \"if (process.platform !== 'win32') process.exit(1)\" || rm -rf dist node_modules",
+    "prebuild": "npm run clean | npm install --force",
+    "build": "ng build",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test @cinchy-co/angular-sdk"
   },
-  "author": {
-    "name": "Cinchy",
-    "email": "opensource@cinchy.co"
-  },
-  "keywords": [
-    "angular",
-    "cinchy",
-    "api",
-    "data network",
-    "data collabortation"
-  ],
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/cinchy-co/angular-sdk/issues"
-  },
+  "private": true,
   "dependencies": {
-    "@types/jsrsasign": "^10.5.1",
+    "@angular/cdk": "~12.2.0",
+    "@angular/common": "~12.2.0",
+    "@angular/compiler": "~12.2.0",
+    "@angular/core": "~12.2.0",
+    "@angular/platform-browser": "~12.2.0",
+    "@angular/platform-browser-dynamic": "~12.2.0",
+    "@angular/router": "~12.2.0",
     "angular-oauth2-oidc": "^13.0.1",
     "iframe-resizer": "^4.3.2",
     "jsrsasign": "^10.5.26",
-    "rxjs-compat": "^6.6.7",
-    "tslib": "^2.3.0"
+    "rxjs": "~6.5.4",
+    "tslib": "^2.0.0",
+    "util": "^0.12.4",
+    "zone.js": "~0.11.4"
+  },
+  "devDependencies": {
+    "@angular-devkit/build-angular": "~12.2.0",
+    "@angular-devkit/core": "~12.2.0",
+    "@angular/cli": "~12.2.0",
+    "@angular/compiler-cli": "~12.2.0",
+    "@angular/language-service": "~12.2.0",
+    "@types/jasmine": "~3.6.0",
+    "@types/jasminewd2": "~2.0.3",
+    "@types/node": "^12.11.1",
+    "codelyzer": "^6.0.0",
+    "jasmine-core": "~3.6.0",
+    "jasmine-spec-reporter": "~5.0.0",
+    "jsrsasign": "^10.8.6",
+    "karma": "~6.4.0",
+    "karma-chrome-launcher": "~3.1.0",
+    "karma-coverage": "~2.0.3",
+    "karma-coverage-istanbul-reporter": "~3.0.2",
+    "karma-jasmine": "~4.0.0",
+    "karma-jasmine-html-reporter": "~1.5.0",
+    "ng-packagr": "^12.1.1",
+    "protractor": "~7.0.0",
+    "shx": "^0.3.4",
+    "ts-node": "~8.3.0",
+    "tslint": "~6.1.0",
+    "typescript": "~4.3.5"
   }
 }
