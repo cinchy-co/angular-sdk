@@ -3,12 +3,12 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "clean": "npm run clean:windows:dist | npm run clean:windows:node_modules | npm run clean:unix",
+    "build": "ng build",
+    "build:clean": "npm run clean && npm install --force && npm run build",
+    "clean": "npm run clean:windows:dist && npm run clean:windows:node_modules && npm run clean:unix",
     "clean:windows:dist": "node -e \"if (process.platform === 'win32') process.exit(1)\" || , (if exist dist rmdir /Q /S dist && if exist node_modules rmdir /Q /S node_modules)",
     "clean:windows:node_modules": "node -e \"if (process.platform === 'win32') process.exit(1)\" || , if exist node_modules rmdir /Q /S node_modules",
     "clean:unix": "node -e \"if (process.platform !== 'win32') process.exit(1)\" || rm -rf dist node_modules",
-    "prebuild": "npm run clean | npm install --force",
-    "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test @cinchy-co/angular-sdk"
   },
