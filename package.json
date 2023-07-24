@@ -1,6 +1,25 @@
 {
   "name": "angular-sdk-wrapper",
   "version": "0.0.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cinchy-co/angular-sdk"
+  },
+  "author": {
+    "name": "Cinchy",
+    "email": "opensource@cinchy.co"
+  },
+  "keywords": [
+    "angular",
+    "cinchy",
+    "api",
+    "data network",
+    "data collabortation"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cinchy-co/angular-sdk/issues"
+  },
   "scripts": {
     "ng": "ng",
     "build": "ng build angular-sdk",
