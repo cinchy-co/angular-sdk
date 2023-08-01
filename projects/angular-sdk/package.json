@@ -1,37 +1,37 @@
 {
-    "name": "@cinchy-co/angular-sdk",
-    "version": "5.1.0",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/cinchy-co/angular-sdk"
-    },
-    "author": {
-        "name": "Cinchy",
-        "email": "opensource@cinchy.co"
-    },
-    "keywords": [
-        "angular",
-        "cinchy",
-        "api",
-        "data network",
-        "data collabortation"
-    ],
-    "license": "MIT",
-    "bugs": {
-        "url": "https://github.com/cinchy-co/angular-sdk/issues"
-    },
-    "private": false,
-    "dependencies": {
-        "@types/jsrsasign": "^10.5.1",
-        "angular-oauth2-oidc": "^12.0.0",
-        "iframe-resizer": "^4.3.2",
-        "jsrsasign": "^10.5.26"
-    },
-    "peerDependencies": {
-        "@angular/common": "^12.0.0 || ^14.0.0 || ^15.0.0",
-        "@angular/core": "^12.0.0 || ^14.0.0 || ^15.0.0",
-        "@angular/cdk": "^12.0.0 || ^14.0.0 || ^15.0.0",
-        "@angular/router": "^12.0.0 || ^14.0.0 || ^15.0.0",
-        "rxjs": "^6.5.4"
-    }
+  "name": "angular-sdk",
+  "version": "5.1.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cinchy-co/angular-sdk"
+  },
+  "author": {
+    "name": "Cinchy",
+    "email": "opensource@cinchy.co"
+  },
+  "keywords": [
+    "angular",
+    "cinchy",
+    "api",
+    "data network",
+    "data collabortation"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cinchy-co/angular-sdk/issues"
+  },
+  "private": false,
+  "dependencies": {
+    "@types/jsrsasign": "^10.5.1",
+    "angular-oauth2-oidc": "^12.0.0",
+    "iframe-resizer": "^4.3.2",
+    "jsrsasign": "^10.5.26"
+  },
+  "peerDependencies": {
+    "@angular/common": "^12.0.0 || ^14.0.0 || ^15.0.0",
+    "@angular/core": "^12.0.0 || ^14.0.0 || ^15.0.0",
+    "@angular/cdk": "^12.0.0 || ^14.0.0 || ^15.0.0",
+    "@angular/router": "^12.0.0 || ^14.0.0 || ^15.0.0",
+    "rxjs": "^6.5.4"
+  }
 }

@@ -1,6 +1,6 @@
 {
     "$schema": "../../node_modules/ng-packagr/ng-package.schema.json",
-    "dest": "../../dist/angular-sdk",
+    "dest": "dist/",
     "allowedNonPeerDependencies": [
         "@types/jsrsasign",
         "angular-oauth2-oidc",
