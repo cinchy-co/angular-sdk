@@ -1,25 +1,5 @@
 {
   "name": "angular-sdk-wrapper",
-  "version": "0.0.0",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/cinchy-co/angular-sdk"
-  },
-  "author": {
-    "name": "Cinchy",
-    "email": "opensource@cinchy.co"
-  },
-  "keywords": [
-    "angular",
-    "cinchy",
-    "api",
-    "data network",
-    "data collabortation"
-  ],
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/cinchy-co/angular-sdk/issues"
-  },
   "scripts": {
     "ng": "ng",
     "build": "ng build angular-sdk",
@@ -28,9 +8,9 @@
     "clean:windows:dist": "node -e \"if (process.platform === 'win32') process.exit(1)\" || , (if exist dist rmdir /Q /S dist && if exist node_modules rmdir /Q /S node_modules)",
     "clean:windows:node_modules": "node -e \"if (process.platform === 'win32') process.exit(1)\" || , if exist node_modules rmdir /Q /S node_modules",
     "clean:unix": "node -e \"if (process.platform !== 'win32') process.exit(1)\" || rm -rf dist node_modules",
+    "publish": "npm publish angular-sdk",
     "watch": "ng build angular-sdk --watch --configuration development"
   },
-  "private": true,
   "dependencies": {
     "@angular/cdk": "~12.2.0",
     "@angular/common": "~12.2.0",
@@ -39,8 +19,6 @@
     "@angular/platform-browser": "~12.2.0",
     "@angular/platform-browser-dynamic": "~12.2.0",
     "@angular/router": "~12.2.0",
-    "angular-oauth2-oidc": "^13.0.1",
-    "jsrsasign": "^10.8.6",
     "rxjs": "~6.5.4",
     "tslib": "^2.0.0",
     "util": "^0.12.4",
