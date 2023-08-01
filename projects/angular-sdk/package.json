@@ -1,5 +1,5 @@
 {
-  "name": "angular-sdk",
+  "name": "@cinchy-co/angular-sdk",
   "version": "5.1.0",
   "repository": {
     "type": "git",
