@@ -144,8 +144,7 @@ Apps can be embedded and launched within the Cinchy platfrom.
 
 Before your app can be embedded, you must use the iframe-resizer library within your Angular App. This allows your app to be properly resized within an iFrame when integrated into Cinchy's platform.
 
-The iframe-resizer package is already included in the Cinchy npm package so it installed it within your node_modules.
-Simply the iframe-resizer .js files into your project's scripts within `.angular-cli.json`:
+The iframe-resizer package is already included in the Cinchy npm package so it installed it within your node_modules. Simply the iframe-resizer .js files into your project's scripts within `.angular.json`:
 
 ```typescript
 "scripts": [

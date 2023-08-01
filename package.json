@@ -40,7 +40,6 @@
     "@angular/platform-browser-dynamic": "~12.2.0",
     "@angular/router": "~12.2.0",
     "angular-oauth2-oidc": "^13.0.1",
-    "iframe-resizer": "^4.3.2",
     "jsrsasign": "^10.8.6",
     "rxjs": "~6.5.4",
     "tslib": "^2.0.0",

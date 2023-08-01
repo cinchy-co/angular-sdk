@@ -1,15 +1,17 @@
 {
-  "name": "angular-sdk",
-  "version": "5.0.0",
-  "peerDependencies": {
-    "@angular/common": "~12.2.0",
-    "@angular/core": "~12.2.0",
-    "@angular/cdk": "~12.2.0",
-    "@angular/router": "~12.2.0",
-    "@types/jsrsasign": "^10.5.1",
-    "angular-oauth2-oidc": "^13.0.1",
-    "iframe-resizer": "^4.3.2",
-    "jsrsasign": "^10.5.26",
-    "rxjs": "^6.5.4"
-  }
+    "name": "angular-sdk",
+    "version": "5.0.0",
+    "dependencies": {
+        "iframe-resizer": "4.3.2"
+    },
+    "peerDependencies": {
+        "@angular/common": "^12.0.0 || ^14.0.0 || ^15.0.0",
+        "@angular/core": "^12.0.0 || ^14.0.0 || ^15.0.0",
+        "@angular/cdk": "^12.0.0 || ^14.0.0 || ^15.0.0",
+        "@angular/router": "^12.0.0 || ^14.0.0 || ^15.0.0",
+        "@types/jsrsasign": "^10.5.1",
+        "angular-oauth2-oidc": ">=13.0.0",
+        "jsrsasign": "^10.5.26",
+        "rxjs": "^6.5.4"
+    }
 }

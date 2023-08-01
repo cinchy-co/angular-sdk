@@ -1,7 +1,8 @@
 {
-  "$schema": "../../node_modules/ng-packagr/ng-package.schema.json",
-  "dest": "../../dist/angular-sdk",
-  "lib": {
-    "entryFile": "src/public-api.ts"
-  }
+    "$schema": "../../node_modules/ng-packagr/ng-package.schema.json",
+    "dest": "../../dist/angular-sdk",
+    "allowedNonPeerDependencies": [ "iframe-resizer" ],
+    "lib": {
+        "entryFile": "src/public-api.ts"
+    }
 }
