@@ -8,19 +8,18 @@ To install this library, go to your angular project directory and use:
 $ npm install @cinchy-co/angular-sdk --save
 ```
 
-Please use version 2.x.x and 3.x.x if you are using **Angular 6** / **Angular 7** / **Angular 8** and **Cinchy v2.x.x** / **Cinchy v3.x.x**.
+The version you should install is dependent on the versions of Cinchy and Angular that your app is using.
 
-Please use version 4.0.0 if you are using **Angular 6** / **Angular 7** / **Angular 8** and anything from **Cinchy 4.0.0 to Cinchy v4.5.x**.
-
-Please use version 4.1.* if you are using **Angular 6** / **Angular 7** / **Angular 8** and **Cinchy v4.6.0 and up**.
-
-Please use version 4.2.0 and up if you are using **Angular 6** / **Angular 7** / **Angular 8** / **Angular 9** / **Angular 10** and **Cinchy v4.15.1 and up** and/or experiencing login issues due to Chrome's new SameSite cookie policies.
-
-Please use version 4.4.0 and up if you are using **Angular 7** / **Angular 8** / **Angular 9** / **Angular 10** and **Cinchy v4.15.1 and up**.
-
-Please use version 5.0.0 and up if you are using **Angular 12** / **Angular 13** / **Angular 14** and **Cinchy v4.15.1 and up**.
-
-If you are using **Angular 5** and a lower version of Cinchy, use version 1.x.x or lower.
+| Angular Version | Cinchy Version | SDK Version |
+| --- | --- | --- |
+| <=5 | <4.0.0 | 1.x.x |
+| 6, 7, or 8 | 2.x.x | 2.x.x |
+| 6, 7, or 8 | 3.x.x | 3.x.x |
+| 6, 7, or 8 | 4.0.0 to 4.5.x | 4.0.0 |
+| 6, 7, or 8 | >=4.6.0 | 4.1.0 |
+| 6, 7, 8, or 9 | >=4.15.1* | 4.2.0 |
+| 7, 8, 9, or 10 | >=4.15.1 | 4.4.0 |
+| >12 | >=4.15.1 | 5.1.0 |
 
 In order to use the [.getUserPreferences()](#get_user_preferences) and [.getTranslatedLiterals(guids, debug?)](#get_translated_literals) functions in the API (added since version 4.0.0), your Cinchy version should be at least on **Cinchy v4.x.x**.
 ## Importing the Cinchy Library
@@ -145,8 +144,7 @@ Apps can be embedded and launched within the Cinchy platfrom.
 
 Before your app can be embedded, you must use the iframe-resizer library within your Angular App. This allows your app to be properly resized within an iFrame when integrated into Cinchy's platform.
 
-The iframe-resizer package is already included in the Cinchy npm package so it installed it within your node_modules.
-Simply the iframe-resizer .js files into your project's scripts within `.angular-cli.json`:
+The iframe-resizer package is already included in the Cinchy npm package so it installed it within your node_modules. Simply the iframe-resizer .js files into your project's scripts within `.angular.json`:
 
 ```typescript
 "scripts": [
