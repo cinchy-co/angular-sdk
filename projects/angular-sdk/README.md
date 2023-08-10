@@ -2,7 +2,7 @@
 
 ## Installation
 
-To install this library, go to your angular project directory and use:
+To install this library, go to your angular project directory and run:
 
 ```bash
 $ npm install @cinchy-co/angular-sdk --save
@@ -10,18 +10,18 @@ $ npm install @cinchy-co/angular-sdk --save
 
 The version you should install is dependent on the versions of Cinchy and Angular that your app is using.
 
-| Angular Version | Cinchy Version | SDK Version |
-| --- | --- | --- |
-| <=5 | <4.0.0 | 1.x.x |
-| 6, 7, or 8 | 2.x.x | 2.x.x |
-| 6, 7, or 8 | 3.x.x | 3.x.x |
-| 6, 7, or 8 | 4.0.0 to 4.5.x | 4.0.0 |
-| 6, 7, or 8 | >=4.6.0 | 4.1.0 |
-| 6, 7, 8, or 9 | >=4.15.1* | 4.2.0 |
-| 7, 8, 9, or 10 | >=4.15.1 | 4.4.0 |
-| >12 | >=4.15.1 | 5.1.0 |
+| Angular Version | Cinchy Version | SDK Version | npm |
+| --- | --- | --- | --- |
+| <=5 | <4.0.0 | 1.x.x | `npm install @cinchy-co/angular-sdk@1.0.0 --save`
+| 6, 7, or 8 | 2.x.x | 2.x.x | `npm install @cinchy-co/angular-sdk@2.x.x --save`
+| 6, 7, or 8 | 3.x.x | 3.x.x | `npm install @cinchy-co/angular-sdk@3.x.x --save`
+| 6, 7, or 8 | 4.0.0 to 4.5.x | 4.0.0 | `npm install @cinchy-co/angular-sdk@4.0.0 --save`
+| 6, 7, or 8 | >=4.6.0 | 4.1.0 | `npm install @cinchy-co/angular-sdk@4.1.0 --save`
+| 6, 7, 8, or 9 | >=4.15.1* | 4.2.0 | `npm install @cinchy-co/angular-sdk@4.2.0 --save`
+| 7, 8, 9, or 10 | >=4.15.1 | 4.4.0 | `npm install @cinchy-co/angular-sdk@4.4.0 --save`
+| >12 | >=4.15.1 | 5.1.0 | `npm install @cinchy-co/angular-sdk --save`
 
-In order to use the [.getUserPreferences()](#get_user_preferences) and [.getTranslatedLiterals(guids, debug?)](#get_translated_literals) functions in the API (added since version 4.0.0), your Cinchy version should be at least on **Cinchy v4.x.x**.
+In order to use the [.getUserPreferences()](#get_user_preferences) and [.getTranslatedLiterals(guids, debug?)](#get_translated_literals) functions in the API (added since version **4.0.0**), your Cinchy version should be at least on **Cinchy v4.x.x**.
 ## Importing the Cinchy Library
 
 From your Angular `AppModule`:
@@ -48,11 +48,11 @@ export class AppModule { }
 
 ## Before Usage
 
-Once CinchyModule is imported, you can use the library through CinchyService.
+Once `CinchyModule` is imported, you can use the library through `CinchyService`.
 You may use CinchyService anywhere you inject it into.
 
-Before you can make any API calls, you must configure CinchyService and login to Cinchy.
-In this example, we do it in AppComponent:
+Before you can make any API calls, you must configure `CinchyService` and login to Cinchy.
+In this example, we do it in `AppComponent`:
 
 ```typescript
 ...
@@ -99,7 +99,7 @@ export class AppComponent {
     this._cinchyService.login().then( response => {
         console.log('Login Success!');
     }).catch( error => {
-        console.log('Login Failed');  
+        console.log('Login Failed');
     });
   }
 ```
@@ -109,9 +109,9 @@ Silent refresh automatically refreshes your access token every 75% of your token
 
 In order to use silent refresh, you must:
 
-1). Set the silentRefreshEnabled property to true in your CinchyConfig object.
+1). Set the `silentRefreshEnabled` property to `true` in your `CinchyConfig` object.
 
-2). Add a silent-refresh.html file into your Angular project. This can be found within the /src/lib/ folder in the repo or copy & paste this:
+2). Add a `silent-refresh.html` file into your Angular project. This can be found within the `/src/lib/` folder in the repo or copy & paste this:
 
 ```html
 <html>
@@ -123,7 +123,7 @@ In order to use silent refresh, you must:
 </html>
 ```
 
-3). Within your angular.json file, specify the silent-refresh.html path and file within the "assets" property:
+3). Within your `angular.json` file, specify the `silent-refresh.html` path and file within the `"assets"` property:
 
 ```json
 ...
@@ -135,16 +135,17 @@ In order to use silent refresh, you must:
 ...
 ```
 
-Silent refresh works by using a hidden iframe to access a url that contains the silent-refresh.html page. This iframe makes a request to the server to retrieve a new access token.
+Silent refresh works by using a hidden iframe to access a url that contains the `silent-refresh.html` page. This iframe makes a request to the server to retrieve a new access token.
 
-4). Add the silent-refresh url into the "Permitted Login Redirect URLs" field of the "Integrated Clients" table within Cinchy (eg. http://localhost:3000/silent-refresh.html).
+4). Add the `silent-refresh` url into the **"Permitted Login Redirect URLs"** field of the **"Integrated Clients"** table within Cinchy (eg. http://localhost:3000/silent-refresh.html).
 
-## Allowing App for Embedment
+## Allowing App for Embedding
+
 Apps can be embedded and launched within the Cinchy platfrom.
 
-Before your app can be embedded, you must use the iframe-resizer library within your Angular App. This allows your app to be properly resized within an iFrame when integrated into Cinchy's platform.
+Before your app can be embedded, you must use the `iframe-resizer` library within your Angular App. This allows your app to be properly resized within an iFrame when integrated into Cinchy's platform.
 
-The iframe-resizer package is already included in the Cinchy npm package so it installed it within your node_modules. Simply the iframe-resizer .js files into your project's scripts within `.angular.json`:
+The `iframe-resizer` package is already included in the Cinchy npm package so it is installed within your `node_modules` directory. Simply copy the `iframe-resizer.js` files into your project's scripts within `.angular.json`:
 
 ```typescript
 "scripts": [
@@ -226,7 +227,7 @@ In order to use the Translation API, you will have to use the [getTranslatedLite
 
 Assuming you have CinchyService setup and a user is logged in, follow these steps to get translation working:
 
-1). In your component, import [CinchyLiteralDictionary](#cinchy_literal_dictionary) from @cinchy-co/angular-sdk.
+1). In your component, import [CinchyLiteralDictionary](#cinchy_literal_dictionary) from `@cinchy-co/angular-sdk`.
 
 ```typescript
 import { CinchyLiteralDictionary } from '@cinchy-co/angular-sdk';
@@ -337,7 +338,7 @@ The login function returns a promise indicating when the user is logged in.
 this._cinchyService.login().then( response => {
     console.log('Login Success!');
 }).catch( error => {
-    console.log('Login Failed');  
+    console.log('Login Failed');
 });
 ```
 
@@ -592,7 +593,7 @@ Returns the number of rows.
 <a name="move_to_next_row"></a>
 
 ### .moveToNextRow()
-Moves the row pointer to the next row. 
+Moves the row pointer to the next row.
 
 <a name="move_to_row"></a>
 
@@ -611,7 +612,7 @@ Returns the index of the current row the row pointer is at.
 <a name="reset_iterator"></a>
 
 ### .resetIterator()
-Moves the row pointer back to index -1. 
+Moves the row pointer back to index -1.
 
 <a name="get_cell_value"></a>
 
@@ -627,7 +628,7 @@ Returns the cell value of the specified column on the current row.
 ### .getMultiselectCellValue(col) => `Array<String>`
 Returns an array of each value in a multiselect field.
 
-When you use .getCellValue(col) on a multiselect column, it returns a string with commas separating each selected value. Using .getMultiselectCellValue(col) allows you to recieve an array instead. 
+When you use .getCellValue(col) on a multiselect column, it returns a string with commas separating each selected value. Using .getMultiselectCellValue(col) allows you to recieve an array instead.
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -737,9 +738,11 @@ export enum QueryType {
 | NONQUERY | Non query (eg. inserts, updates, deletes) |
 | VERSION_HISTORY_QUERY | Query that returns version history |
 
-## More Documentaion
-See [here](https://platform.docs.cinchy.com/) for more documentation.
-See [here](http://support.cinchy.com/) for support.
+## Additional Resources
+
+- [Platform Documentation](https://platform.docs.cinchy.com/)
+- [Support](http://support.cinchy.com/)
 
 ## License
+
 This project is license under the terms of the [MIT License](https://github.com/cinchy-co/angular-sdk/blob/master/LICENSE)
