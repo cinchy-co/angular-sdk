@@ -5,7 +5,8 @@
         "@types/jsrsasign",
         "angular-oauth2-oidc",
         "iframe-resizer",
-        "jsrsasign"
+        "jsrsasign",
+        "rxjs-compat"
     ],
     "lib": {
         "entryFile": "src/public-api.ts"
