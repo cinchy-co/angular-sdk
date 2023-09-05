@@ -1,0 +1,14 @@
+{
+    "$schema": "../../node_modules/ng-packagr/ng-package.schema.json",
+    "dest": "dist/",
+    "allowedNonPeerDependencies": [
+        "@types/jsrsasign",
+        "angular-oauth2-oidc",
+        "iframe-resizer",
+        "jsrsasign",
+        "rxjs-compat"
+    ],
+    "lib": {
+        "entryFile": "src/public-api.ts"
+    }
+}
