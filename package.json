@@ -12,8 +12,8 @@
     "clean:unix": "rm -rf dist node_modules",
     "publish:official": "npm run build && npm publish projects/angular-sdk/dist",
     "publish:dry": "npm run build && npm publish projects/angular-sdk/dist --dry-run",
-    "publish:rc": "npm run build && npm publish projects/angular-sdk/dist --tag rc",
-    "publish:rc-dry": "npm run build && npm publish projects/angular-sdk/dist --tag rc --dry-run",
+    "publish:rc": "npm version prerelease --preid rc && npm run build && npm publish projects/angular-sdk/dist --tag rc",
+    "publish:rc-dry": "npm version prerelease --preid rc && npm run build && npm publish projects/angular-sdk/dist --tag rc --dry-run",
     "watch": "ng build angular-sdk --watch --configuration development"
   },
   "dependencies": {
