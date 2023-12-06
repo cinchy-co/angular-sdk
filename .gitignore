@@ -35,6 +35,8 @@ chrome-profiler-events*.json
 /coverage
 npm-debug.log
 /typings
+yalc.lock
+/.yalc
 
 # System Files
 .DS_Store
