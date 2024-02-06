@@ -10,7 +10,7 @@
     "clean:windows:node_modules:project": "(if exist node_modules rmdir /Q /S node_modules)",
     "clean:windows:node_modules:root": "(if exist projects\\angular-sdk\\node_modules rmdir /Q /S projects\\angular-sdk\\node_modules)",
     "clean:unix": "rm -rf dist node_modules",
-    "version:rc": "npm version prerelease --preid rc --workspace=projects/angular-sdk",
+    "version:rc": "cd projects/angular-sdk && npm version prerelease --preid rc",
     "version:patch": "npm version patch --workspace=projects/angular-sdk",
     "version:minor": "npm version minor --workspace=projects/angular-sdk",
     "version:major": "npm version major --workspace=projects/angular-sdk",
