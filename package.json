@@ -10,12 +10,20 @@
     "clean:windows:node_modules:project": "(if exist node_modules rmdir /Q /S node_modules)",
     "clean:windows:node_modules:root": "(if exist projects\\angular-sdk\\node_modules rmdir /Q /S projects\\angular-sdk\\node_modules)",
     "clean:unix": "rm -rf dist node_modules",
+    "version:rc": "cd projects/angular-sdk && npm version prerelease --preid rc",
+    "version:patch": "cd projects/angular-sdk && npm version patch --workspace=projects/angular-sdk",
+    "version:minor": "cd projects/angular-sdk && npm version minor --workspace=projects/angular-sdk",
+    "version:major": "cd projects/angular-sdk && npm version major --workspace=projects/angular-sdk",
     "publish:official": "npm run build && npm publish projects/angular-sdk/dist",
-    "publish:dry": "npm run build && npm publish projects/angular-sdk/dist --dry-run",
+    "publish:official-dry": "npm run publish:official --dry-run",
     "publish:rc": "npm run build && npm publish projects/angular-sdk/dist --tag rc",
-    "publish:rc-dry": "npm run build && npm publish projects/angular-sdk/dist --tag rc --dry-run",
+    "publish:rc-dry": "npm run publish:rc --dry-run",
+    "publish:list-tags": "cd projects/angular-sdk/dist && npm dist-tag ls",
     "watch": "ng build angular-sdk --watch --configuration development"
   },
+  "workspaces": [
+    "projects/angular-sdk"
+  ],
   "dependencies": {
     "@types/jsrsasign": "^10.5.1",
     "angular-oauth2-oidc": "^12.0.0",
