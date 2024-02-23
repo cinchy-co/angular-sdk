@@ -4,7 +4,15 @@ import { Observable, forkJoin, Subject, ReplaySubject, of, throwError, Subscript
 import { map, catchError, mergeMap } from 'rxjs/operators';
 
 import { Injectable, Inject, OnDestroy } from '@angular/core';
-import { HttpClient, HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpHeaders } from '@angular/common/http';
+import {
+  HttpClient,
+  HttpInterceptor,
+  HttpRequest,
+  HttpHandler,
+  HttpEvent,
+  HttpHeaders,
+  HttpErrorResponse
+} from '@angular/common/http';
 import { NavigationEnd, Router, RouterEvent } from "@angular/router";
 
 import { OAuthService, AuthConfig, OAuthStorage } from 'angular-oauth2-oidc';
@@ -228,22 +236,36 @@ export class CinchyService implements OnDestroy {
             form_data = this.getFormUrlEncodedData(params);
         }
 
-        return <Observable<{ queryResult: Cinchy.QueryResult, callbackState }>>this._httpClient.post(apiUrl,
+        return <Observable<{ queryResult: Cinchy.QueryResult, callbackState: any }>>this._httpClient.post(apiUrl,
             form_data,
             {
-                headers: new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded'),
+                headers: new HttpHeaders()
+                  .set('Content-Type', 'application/x-www-form-urlencoded')
             }).pipe(
                 map(data => {
                     const queryResult = new Cinchy.QueryResult(data);
                     return { queryResult: queryResult, callbackState: callbackState };
                 }),
                 catchError(error => {
-                    const cinchyEx = new Cinchy.CinchyException(errorMsg, {
+
+                    let context: any = {
                         status: error.status,
                         statusText: error.statusText,
                         response: error.responseJSON
-                    });
-                    return throwError({ cinchyException: cinchyEx, callbackState: callbackState });
+                    };
+
+                    const cinchyErrorMessage = (error as HttpErrorResponse).headers.get("X-Cinchy-Error");
+
+                    if (cinchyErrorMessage) {
+                      context.details = cinchyErrorMessage;
+                    }
+
+                    const cinchyException = new Cinchy.CinchyException(
+                        errorMsg,
+                        context
+                    );
+
+                    return throwError({ cinchyException: cinchyException, callbackState: callbackState });
                 })
             );
     }
@@ -288,7 +310,10 @@ export class CinchyService implements OnDestroy {
 
         return <Observable<{ queryResult: Cinchy.QueryResult, callbackState }>>this._executeQuery(apiUrl, formattedParams, errorMsg, callbackState).pipe(
             map(response => response),
-            catchError(error => { return throwError(error); })
+            catchError(error => {
+
+                return throwError(error);
+            })
         );
     }
 
@@ -498,15 +523,15 @@ export class CinchyService implements OnDestroy {
     }
 
     getUserPreferences(): Observable<CinchyUserPreference> {
-        var query = `   SELECT u.[Username] as 'username', 
+        var query = `   SELECT u.[Username] as 'username',
                             u.[Name] as 'name', u.[Display Name] as 'displayName',
                             u.[Email Address] as 'emailAddress',
                             u.[Profile Photo] as 'profilePhoto',
                             l.[Language].[Subtag] as 'language',
                             l.[Region].[Subtag] as 'region',
-                            l.[Time Zone] as 'timeZone' 
+                            l.[Time Zone] as 'timeZone'
                         FROM [Cinchy].[Users] u
-                        LEFT JOIN [Cinchy].[User Preferences] l 
+                        LEFT JOIN [Cinchy].[User Preferences] l
                             ON l.[User].[Cinchy Id] = u.[Cinchy Id]
                         WHERE u.[Cinchy Id] = CurrentUserID();`;
         var params = null;
@@ -616,19 +641,23 @@ export class CinchyService implements OnDestroy {
 }
 
 export namespace Cinchy {
+
     export class CinchyException {
+
         message: string;
-        data: any;
         name: string;
+
+        data?: {
+          details?: string;
+          response?: any;
+          status: number;
+          statusText: string;
+        };
 
         constructor(message: string, data?: any) {
             this.message = message;
             this.data = data;
             this.name = 'CinchyException';
-        }
-
-        logError(): void {
-            console.error(this.message, this.data);
         }
     }
 
