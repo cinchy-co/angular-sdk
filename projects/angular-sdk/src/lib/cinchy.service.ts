@@ -317,13 +317,13 @@ export class CinchyService implements OnDestroy {
         );
     }
 
-    executeQuery(domain: string, query: string, params: object, callbackState?): Observable<{ queryResult: Cinchy.QueryResult, callbackState }> {
-        if (!isNonNullOrWhitespaceString(domain))
-            throw new Cinchy.CinchyException('Domain must be a valid string', domain);
+    executeQuery(dataProduct: string, query: string, params: object, callbackState?): Observable<{ queryResult: Cinchy.QueryResult, callbackState }> {
+        if (!isNonNullOrWhitespaceString(dataProduct))
+            throw new Cinchy.CinchyException('Data Product must be a valid string', dataProduct);
         if (!isNonNullOrWhitespaceString(query))
             throw new Cinchy.CinchyException('Query must be a valid string', query);
-        let apiUrl = this.cinchyRootUrl + '/API/' + domain + '/' + query;
-        let errorMsg = 'Failed to execute query ' + query + ' within domain ' + domain;
+        let apiUrl = this.cinchyRootUrl + '/API/' + dataProduct + '/' + query;
+        let errorMsg = 'Failed to execute query ' + query + ' within data product ' + dataProduct;
 
         return <Observable<{ queryResult: Cinchy.QueryResult, callbackState }>>this._executeQuery(apiUrl, params, errorMsg, callbackState).pipe(
             map(response => response),
@@ -457,13 +457,13 @@ export class CinchyService implements OnDestroy {
         );
     }
 
-    executeQueries(queryParams: { domain: string, query: string, params, callbackState }[], callbackState?): Observable<{ queryResult: Cinchy.QueryResult, callbackState }[]> {
+    executeQueries(queryParams: { dataProduct: string, query: string, params, callbackState }[], callbackState?): Observable<{ queryResult: Cinchy.QueryResult, callbackState }[]> {
         if (!isNonZeroLengthArray(queryParams))
             throw new Cinchy.CinchyException('Failed to execute queries, queryParams must be specified as an array of objects, with each object containing the parameters required to invoke a single call to the executeQuery method', queryParams);
 
         let allObservables = [];
         for (let i = 0; i < queryParams.length; i++) {
-            allObservables.push(<Observable<{ queryResult: Cinchy.QueryResult, callbackState }>>this.executeQuery(queryParams[i].domain, queryParams[i].query, queryParams[i].params, queryParams[i].callbackState));
+            allObservables.push(<Observable<{ queryResult: Cinchy.QueryResult, callbackState }>>this.executeQuery(queryParams[i].dataProduct, queryParams[i].query, queryParams[i].params, queryParams[i].callbackState));
 
             if (i === queryParams.length - 1) {
                 return <Observable<{ queryResult: Cinchy.QueryResult, callbackState }[]>>forkJoin(allObservables);
@@ -509,9 +509,9 @@ export class CinchyService implements OnDestroy {
             );
     }
 
-    getTableEntitlementsByName(domainName, tableName): Observable<any> {
+    getTableEntitlementsByName(dataProductName, tableName): Observable<any> {
         return this._httpClient.post(this.cinchyRootUrl + '/Account/GetTableEntitlementsByName',
-            { 'domainName': domainName, 'tableName': tableName },
+            { 'dataProductName': dataProductName, 'tableName': tableName },
             { headers: new HttpHeaders().set('Content-Type', 'application/json; charset=utf-8') }).pipe(
                 map(data => {
                     return data;
