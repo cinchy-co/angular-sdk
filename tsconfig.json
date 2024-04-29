@@ -6,7 +6,9 @@
       "angular-sdk": [
         "dist/angular-sdk"
       ],
-      "@angular/*": [ "./node_modules/@angular/*" ]
+      "@angular/*": [
+        "./node_modules/@angular/*"
+      ]
     },
     "baseUrl": "./",
     "outDir": "./dist/out-tsc",
@@ -23,12 +25,13 @@
     "noImplicitReturns": false,
     "preserveSymlinks": true,
     "sourceMap": true,
-    "target": "es2020",
+    "target": "ES2022",
     "module": "es2020",
     "lib": [
       "es2018",
       "dom"
-    ]
+    ],
+    "useDefineForClassFields": false
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
