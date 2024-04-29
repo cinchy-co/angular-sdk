@@ -29,6 +29,7 @@ chrome-profiler-events*.json
 .history/*
 
 # misc
+/.angular/cache
 .editorconfig
 /.sass-cache
 /connect.lock
