@@ -23,7 +23,7 @@
   "private": false,
   "dependencies": {
     "@types/jsrsasign": "^10.5.1",
-    "angular-oauth2-oidc": "^12.0.0",
+    "angular-oauth2-oidc": "^17.0.2",
     "iframe-resizer": "^4.3.2",
     "jsrsasign": "^10.5.26",
     "rxjs-compat": "^6.6.7"
