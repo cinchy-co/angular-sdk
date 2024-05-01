@@ -10,16 +10,18 @@ $ npm install @cinchy-co/angular-sdk --save
 
 The version you should install is dependent on the versions of Cinchy and Angular that your app is using.
 
-| Angular Version | Cinchy Version | SDK Version | npm |
-| --- | --- | --- | --- |
-| <=5 | <4.0.0 | 1.x.x | `npm install @cinchy-co/angular-sdk@1.0.0 --save`
-| 6, 7, or 8 | 2.x.x | 2.x.x | `npm install @cinchy-co/angular-sdk@2.x.x --save`
-| 6, 7, or 8 | 3.x.x | 3.x.x | `npm install @cinchy-co/angular-sdk@3.x.x --save`
-| 6, 7, or 8 | 4.0.0 to 4.5.x | 4.0.0 | `npm install @cinchy-co/angular-sdk@4.0.0 --save`
-| 6, 7, or 8 | >=4.6.0 | 4.1.0 | `npm install @cinchy-co/angular-sdk@4.1.0 --save`
-| 6, 7, 8, or 9 | >=4.15.1* | 4.2.0 | `npm install @cinchy-co/angular-sdk@4.2.0 --save`
-| 7, 8, 9, or 10 | >=4.15.1 | 4.4.0 | `npm install @cinchy-co/angular-sdk@4.4.0 --save`
-| >12 | >=4.15.1 | 5.1.4 | `npm install @cinchy-co/angular-sdk --save`
+| Angular Version | Cinchy Version | SDK Version  | Node Version         | npm                                               |
+|-----------------|----------------|--------------|----------------------|---------------------------------------------------|
+| <=5             | <4.0.0         | 1.x.x        | ^6.9.0               | `npm install @cinchy-co/angular-sdk@1.0.0 --save` |
+| 6 or 7          | 2.x.x          | 2.x.x        | ^8.9.0               | `npm install @cinchy-co/angular-sdk@2.x.x --save` |
+| 6 or 7          | 3.x.x          | 3.x.x        | ^8.9.0               | `npm install @cinchy-co/angular-sdk@3.x.x --save` |
+| 6 or 7          | 4.0.0 to 4.5.x | 4.0.0        | ^8.9.0               | `npm install @cinchy-co/angular-sdk@4.0.0 --save` |
+| 6 or 7          | >=4.6.0        | 4.1.0        | ^8.9.0               | `npm install @cinchy-co/angular-sdk@4.1.0 --save` |
+| 9               | >=4.15.1*      | 4.2.0        | ^10.13.0 or ^12.11.0 | `npm install @cinchy-co/angular-sdk@4.2.0 --save` |
+| 9 or 10         | >=4.15.1       | 4.4.0        | ^10.13.0 or ^12.11.0 | `npm install @cinchy-co/angular-sdk@4.4.0 --save` |
+| 12, 13, or 14   | >=4.15.1       | 5.1.4        | ^14.15.0             | `npm install @cinchy-co/angular-sdk@5.1.4 --save` |
+| 15 or 16        | >=5.11.0       | 6.0.0        | ^18.10.0             | `npm install @cinchy-co/angular-sdk --save`       |
+| >17             | >=5.11.0       | 6.0.0        | ^18.13.0 or ^20.9.0  | `npm install @cinchy-co/angular-sdk --save`       |
 
 In order to use the [.getUserPreferences()](#get_user_preferences) and [.getTranslatedLiterals(guids, debug?)](#get_translated_literals) functions in the API (added since version **4.0.0**), your Cinchy version should be at least on **Cinchy v4.x.x**.
 ## Importing the Cinchy Library
