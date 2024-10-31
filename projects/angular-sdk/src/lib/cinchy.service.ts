@@ -4,15 +4,7 @@ import { Observable, forkJoin, Subject, ReplaySubject, of, throwError, Subscript
 import {map, catchError, mergeMap, filter} from 'rxjs/operators';
 
 import { Injectable, Inject, OnDestroy } from '@angular/core';
-import {
-  HttpClient,
-  HttpInterceptor,
-  HttpRequest,
-  HttpHandler,
-  HttpEvent,
-  HttpHeaders,
-  HttpErrorResponse
-} from '@angular/common/http';
+import { HttpClient, HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { NavigationEnd, Router, RouterEvent } from "@angular/router";
 
 import { OAuthService, AuthConfig, OAuthStorage } from 'angular-oauth2-oidc';
