@@ -25,14 +25,12 @@
     "@types/jsrsasign": "^10.5.1",
     "angular-oauth2-oidc": "^17.0.2",
     "iframe-resizer": "^4.3.2",
-    "jsrsasign": "^10.5.26",
-    "rxjs-compat": "^6.6.7"
+    "jsrsasign": "^11.1.0"
   },
   "peerDependencies": {
-    "@angular/common": "^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0",
-    "@angular/core": "^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0",
-    "@angular/cdk": "^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0",
-    "@angular/router": "^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0",
-    "rxjs": "^6.5.4 || ^7.0.0"
+    "@angular/common": "^18.0.0",
+    "@angular/core": "^18.0.0",
+    "@angular/router": "^18.0.0",
+    "rxjs": "^6.5.4 || ^7.4.0"
   }
 }
