@@ -20,7 +20,8 @@ The version you should install is dependent on the versions of Cinchy and Angula
 | 9               | >=4.15.1*      | 4.2.0        | ^10.13.0 or ^12.11.0 | `npm install @cinchy-co/angular-sdk@4.2.0 --save`  |
 | 9 or 10         | >=4.15.1       | 4.4.0        | ^10.13.0 or ^12.11.0 | `npm install @cinchy-co/angular-sdk@4.4.0 --save`  |
 | 12, 13, or 14   | >=4.15.1       | 5.1.4        | ^14.15.0             | `npm install @cinchy-co/angular-sdk@5.1.4 --save`  |
-| >=18             | >=5.11.0       | 6.0.0        | ^18.19.1 or ^20.11.1 or >=22.0.0  | `npm install @cinchy-co/angular-sdk@latest --save` |
+| >=18             | >=5.11.0       | 6.0.0        | ^18.19.1 or ^20.11.1 or >=22.0.0  | `npm install @cinchy-co/angular-sdk@6.0.0 --save` |
+| >=18             | >=6.0.0       | 7.0.0        | ^18.19.1 or ^20.11.1 or >=22.0.0  | `npm install @cinchy-co/angular-sdk@latest --save` |
 
 In order to use the [.getUserPreferences()](#get_user_preferences) and [.getTranslatedLiterals(guids, debug?)](#get_translated_literals) functions in the API (added since version **4.0.0**), your Cinchy version should be at least on **Cinchy v4.x.x**.
 ## Importing the Cinchy Library
