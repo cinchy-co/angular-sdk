@@ -1,18 +1,10 @@
 /* tslint:disable:max-line-length curly */
 
 import { Observable, forkJoin, Subject, ReplaySubject, of, throwError, Subscription } from 'rxjs';
-import { map, catchError, mergeMap } from 'rxjs/operators';
+import {map, catchError, mergeMap, filter} from 'rxjs/operators';
 
 import { Injectable, Inject, OnDestroy } from '@angular/core';
-import {
-  HttpClient,
-  HttpInterceptor,
-  HttpRequest,
-  HttpHandler,
-  HttpEvent,
-  HttpHeaders,
-  HttpErrorResponse
-} from '@angular/common/http';
+import { HttpClient, HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { NavigationEnd, Router, RouterEvent } from "@angular/router";
 
 import { OAuthService, AuthConfig, OAuthStorage } from 'angular-oauth2-oidc';
@@ -31,7 +23,7 @@ import { CinchyUserPreference } from './cinchy.user.preference';
 })
 export class CinchyService implements OnDestroy {
 
-    private cinchyRootUrl;
+    private cinchyRootUrl: string;
     private accessTokenSubject: Subject<string>;
     private userIdentitySubject: Subject<object>;
 
@@ -119,7 +111,16 @@ export class CinchyService implements OnDestroy {
                     // We want to make sure that we only modify the URL after it has done its round trip, otherwise there's
                     // a risk that it will either be mangled or that it could cause a mismatch between the URL and the list
                     // of allowed URLs in the app's security policy'
-                    const routerSubscription = that._router.events.subscribe({
+                    const routerSubscription = that._router.events
+                      .pipe(
+                        filter(
+                          (event: any): event is RouterEvent => {
+
+                            return event instanceof RouterEvent;
+                          }
+                        )
+                      )
+                      .subscribe({
                         next: (event: RouterEvent) => {
 
                             if (event instanceof NavigationEnd) {
