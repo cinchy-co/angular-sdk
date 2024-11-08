@@ -6,14 +6,16 @@
       "angular-sdk": [
         "dist/angular-sdk"
       ],
-      "@angular/*": [ "./node_modules/@angular/*" ]
+      "@angular/*": [
+        "./node_modules/@angular/*"
+      ]
     },
     "baseUrl": "./",
     "outDir": "./dist/out-tsc",
     "strict": false,
+    "esModuleInterop": true,
     "allowUnreachableCode": true,
     "declaration": false,
-    "downlevelIteration": true,
     "experimentalDecorators": true,
     "forceConsistentCasingInFileNames": true,
     "importHelpers": true,
@@ -23,12 +25,13 @@
     "noImplicitReturns": false,
     "preserveSymlinks": true,
     "sourceMap": true,
-    "target": "es2017",
+    "target": "ES2022",
     "module": "es2020",
     "lib": [
       "es2018",
       "dom"
-    ]
+    ],
+    "useDefineForClassFields": false
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
