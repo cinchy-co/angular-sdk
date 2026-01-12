@@ -34,28 +34,27 @@
     "jsrsasign": "^11.1.0"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^18.2.11",
-    "@angular-devkit/core": "^18.2.11",
-    "@angular/cdk": "^18.2.11",
-    "@angular/cli": "^18.2.11",
-    "@angular/common": "^18.2.10",
-    "@angular/compiler": "^18.2.10",
-    "@angular/compiler-cli": "^18.2.10",
-    "@angular/core": "^18.2.10",
-    "@angular/language-service": "^18.2.10",
-    "@angular/platform-browser": "^18.2.10",
-    "@angular/platform-browser-dynamic": "^18.2.10",
-    "@angular/router": "^18.2.10",
+    "@angular-devkit/core": "^21.0.5",
+    "@angular/build": "^21.0.5",
+    "@angular/cli": "^21.0.5",
+    "@angular/common": "^21.0.8",
+    "@angular/compiler": "^21.0.8",
+    "@angular/compiler-cli": "^21.0.8",
+    "@angular/core": "^21.0.8",
+    "@angular/language-service": "^21.0.8",
+    "@angular/platform-browser": "^21.0.8",
+    "@angular/platform-browser-dynamic": "^21.0.8",
+    "@angular/router": "^21.0.8",
     "@types/node": "^18.19.1",
-    "ng-packagr": "^18.2.1",
+    "ng-packagr": "^21.0.1",
     "rxjs": "^7.8.1",
     "ts-node": "~8.3.0",
     "tslib": "^2.0.0",
-    "typescript": "^5.5.4",
+    "typescript": "^5.9.3",
     "util": "^0.12.4",
-    "zone.js": "~0.14.10"
+    "zone.js": "~0.15.1"
   },
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=22.12.0"
   }
 }
